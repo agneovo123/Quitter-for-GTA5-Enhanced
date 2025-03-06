@@ -1,0 +1,26 @@
+Todo list:
+
+
+[+] Processes:
+    [+] Get processses
+    [+] Suspend/Resume
+    [+] Instatnt turn off (Kill)
+
+[ ] Hotkeys:
+    [+] Get/Set
+    [ ] Save/Load
+        [ ] use the same format as Flexcreator's Quitter
+    [+] Intercept (while window is not in focus) [seems to work]
+
+[+] Networking:
+    [ ] Select network 'card'
+    [+] Turn on/off
+
+[ ] visuals:
+    [ ] dark mode, minimalistic
+.
+
+
+
+
+

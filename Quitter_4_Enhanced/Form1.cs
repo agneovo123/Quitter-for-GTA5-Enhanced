@@ -16,9 +16,16 @@ namespace Quitter_4_Enhanced
 {
     public partial class Form1 : Form
     {
+        public static Form1 form;
         public Form1()
         {
+            form = this;
             InitializeComponent();
+        }
+        private void Form1_Click(object sender, EventArgs e)
+        {
+            // Remove focus from the current control
+            this.ActiveControl = null;
         }
 
         #region process_stuff
@@ -144,6 +151,22 @@ namespace Quitter_4_Enhanced
         }
 
         #endregion
+
+
+        private void textBox_SoloKey_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "SOLO"); }
+        private void textBox_KillGame_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "KILL"); }
+        private void textBox_DropNetwork_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "NET"); }
+
+        private void textBox_SoloTime_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // limit to numbers
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+        private void textBox_NetworkTime_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // limit to numbers
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
 
     }
 }

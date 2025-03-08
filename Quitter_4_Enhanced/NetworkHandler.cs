@@ -13,14 +13,22 @@ namespace Quitter_4_Enhanced
     class NetworkHandler
     {
         private static bool IsAdmin;
+        /// <summary>
+        /// Checks if the program was started with Administrator rights
+        /// </summary>
+        /// <returns>true if program was 'Run as Admin'</returns>
         private static bool IsAdministrator()
         {
             return (new WindowsPrincipal(WindowsIdentity.GetCurrent()))
                       .IsInRole(WindowsBuiltInRole.Administrator);
         }
+        /// <summary>
+        /// Sets IsAdmin and warns user if the program wasn't started with Administrator rights.
+        /// </summary>
         private static void CheckAdminRights()
         {
             IsAdmin = IsAdministrator();
+            // color net controls + warn user
             if (!IsAdmin)
             {
                 Form1.form.label_DropConn.ForeColor = System.Drawing.Color.FromArgb(0, 255, 255);
@@ -30,32 +38,30 @@ namespace Quitter_4_Enhanced
                 Logger.log("Drop network connection is unavailable");
             }
         }
+        /// <summary>
+        /// Get network adapters' name
+        /// </summary>
         public static void GetNetworks()
         {
-            List<string> adapters = net_adapters();
             // clear items
             Form1.form.comboBox_Networks.Items.Clear();
-            // add adapter names
-            foreach (string adapter in adapters)
+            // add adapter names to comboBox/dropDown
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
             {
-                Console.WriteLine("Adapter: \"{0}\"", adapter);
-                Form1.form.comboBox_Networks.Items.Add(adapter);
+                Console.WriteLine("Adapter: \"{0}\"", nic.Name);
+                Form1.form.comboBox_Networks.Items.Add(nic.Name);
             }
+            // set selected
             Form1.form.comboBox_Networks.SelectedIndex = ConfigHandler.config.selectedAdapter;
 
             CheckAdminRights();
-            //loading ends here.
-            Form1.IgnoreBecauseLoading = false;
+            // loading ends here
+            Form1.IgnoreInputsBecauseLoading = false;
         }
-        private static System.Collections.Generic.List<String> net_adapters()
-        {
-            List<String> values = new List<String>();
-            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                values.Add(nic.Name);
-            }
-            return values;
-        }
+        /// <summary>
+        /// Tries to enable a network adapter
+        /// </summary>
+        /// <param name="interfaceName">name of the network adapter</param>
         public static void EnableAdapter(string interfaceName)
         {
             Console.WriteLine("EnableAdapter()");
@@ -82,7 +88,10 @@ namespace Quitter_4_Enhanced
                 Logger.log(e.Message);
             }
         }
-
+        /// <summary>
+        /// Tries to disable a network adapter
+        /// </summary>
+        /// <param name="interfaceName">name of the network adapter</param>
         public static void DisableAdapter(string interfaceName)
         {
             Console.WriteLine("DisableAdapter()");

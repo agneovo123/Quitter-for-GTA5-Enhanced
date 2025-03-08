@@ -289,7 +289,7 @@ namespace Quitter_4_Enhanced
             // timer_autosaver
             // 
             this.timer_autosaver.Interval = 1000;
-            this.timer_autosaver.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timer_autosaver.Tick += new System.EventHandler(this.timer_autosaver_Tick);
             // 
             // timer_suspend
             // 

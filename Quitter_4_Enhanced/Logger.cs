@@ -8,6 +8,10 @@ namespace Quitter_4_Enhanced
 {
     class Logger
     {
+        /// <summary>
+        /// Writes a message to the bottom of the program
+        /// </summary>
+        /// <param name="msg">message to write</param>
         public static void log(string msg)
         {
             //Form1.form.listBox_EventLog.Items.Insert(0, DateTime.Now + " > " + msg);

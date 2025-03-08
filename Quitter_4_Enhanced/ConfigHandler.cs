@@ -38,16 +38,20 @@ namespace Quitter_4_Enhanced
             public int Key { get; set; }
             public int CombinedModifiers { get; set; }
         }
-        private static string myFileName = "Quitter4Enahnced.json";
+        /// <summary>
+        /// config's filename
+        /// </summary>
+        private static string configFilename = "Quitter4Enahnced.json";
+        /// <summary>
+        /// Loads config from file <br/>
+        /// or from hardcoded defaults if file wasn't found.
+        /// </summary>
         public static void TryLoadFromConfig()
         {
-            // loading starts here.
-
-
             // try to load from own file
-            if (File.Exists(myFileName))
+            if (File.Exists(configFilename))
             {
-                LoadFromJSON();
+                LoadConfig();
                 Logger.log("Config loaded from own file");
                 Console.WriteLine("Config loaded from own file");
             }
@@ -68,10 +72,12 @@ namespace Quitter_4_Enhanced
                 Console.WriteLine("Config files not found:\n - Defaults loaded");
                 SaveConfig();
             }
-            SetTextBoxValues();
+            ApplyConfigValues();
         }
-
-        private static void SetTextBoxValues()
+        /// <summary>
+        /// Sets controls' values from config
+        /// </summary>
+        private static void ApplyConfigValues()
         {
             Console.WriteLine("SetTextBoxValues()");
 
@@ -81,32 +87,30 @@ namespace Quitter_4_Enhanced
             Form1.form.textBox_SoloTime.Text = config.suspendInterval.ToString();
             Form1.form.textBox_NetworkTime.Text = config.dropDelay.ToString();
 
-            //Form1.form.timer_suspend.Interval = config.suspendInterval;
-            //Form1.form.timer_network.Interval = config.dropDelay * 1000;
+            Form1.form.timer_suspend.Interval = config.suspendInterval;
+            Form1.form.timer_network.Interval = config.dropDelay * 1000;
         }
-
+        /// <summary>
+        /// turns the keys object into a string
+        /// </summary>
+        /// <param name="keys">MyKeys keys to check</param>
+        /// <returns></returns>
         private static string GetStringFromKeys(MyKeys keys)
         {
             StringBuilder keyCombo = new StringBuilder();
-            if ((keys.CombinedModifiers & 1) == 1)
-            {
-                keyCombo.Append("Alt+");
-            }
-            if ((keys.CombinedModifiers & 2) == 2)
-            {
-                keyCombo.Append("Ctrl+");
-            }
-            if ((keys.CombinedModifiers & 4) == 4)
-            {
-                keyCombo.Append("Shift+");
-            }
+            if ((keys.CombinedModifiers & 1) == 1) { keyCombo.Append("Alt+"); }
+            if ((keys.CombinedModifiers & 2) == 2) { keyCombo.Append("Ctrl+"); }
+            if ((keys.CombinedModifiers & 4) == 4) { keyCombo.Append("Shift+"); }
 
             //Console.WriteLine(KeysToString(keys.Key));
             keyCombo.Append(KeysToString(keys.Key));
 
             return keyCombo.ToString();
         }
-
+        /// <summary>
+        /// System.Windows.Forms.Keys enum but in reverse<br/>
+        /// as in: you provide an int and get a key's name
+        /// </summary>
         static string KeysToString(int keyCode)
         {
             string name = Enum.GetName(typeof(Keys), keyCode) ?? "UnknownKey";
@@ -115,6 +119,9 @@ namespace Quitter_4_Enhanced
             return name;
         }
 
+        /// <summary>
+        /// load default values into config
+        /// </summary>
         private static void LoadDefaults()
         {
             config.selectedAdapter = 0;
@@ -124,6 +131,9 @@ namespace Quitter_4_Enhanced
             LoadDefaultHotkeys();
         }
 
+        /// <summary>
+        /// load default hotkey values into config
+        /// </summary>
         private static void LoadDefaultHotkeys()
         {
             config.hotkeys = new MyKeys[3];
@@ -139,13 +149,13 @@ namespace Quitter_4_Enhanced
             config.hotkeys[2].Key = 35;
             config.hotkeys[2].CombinedModifiers = 6;
         }
-
+        /// <summary>
+        /// Saves config to file
+        /// </summary>
         public static void SaveConfig()
         {
-            Console.WriteLine("SaveConfig()");
-
-            //JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
-            //string JSONString = JsonSerializer.Serialize(config, options);
+            //Console.WriteLine("SaveConfig()");
+            // originally used JSON serialization.
             string JSONString = "{"
             + "\n  \"hotkeys\": ["
             + "\n  {"
@@ -165,19 +175,19 @@ namespace Quitter_4_Enhanced
             + $"\n  \"dropDelay\": {config.dropDelay}"
             + "\n}";
 
-            File.WriteAllText(myFileName, JSONString);
-
+            File.WriteAllText(configFilename, JSONString);
             //Console.WriteLine(JSONString);
-
             Logger.log("Config autosaved");
         }
-
-        private static void LoadFromJSON()
+        /// <summary>
+        /// Loads config From file
+        /// </summary>
+        private static void LoadConfig()
         {
-            Console.WriteLine("LoadFromJSON()");
+            //Console.WriteLine("LoadConfig()");
 
-            string[] lines = File.ReadAllLines(myFileName);
-
+            string[] lines = File.ReadAllLines(configFilename);
+            // init config
             config = new Config();
             // "read" hotkeys
             config.hotkeys = new MyKeys[3];
@@ -193,41 +203,47 @@ namespace Quitter_4_Enhanced
             config.suspendInterval = GetNumberFromLine(lines, 15);
             config.dropDelay = GetNumberFromLine(lines, 16);
 
-            //Console.WriteLine(config.selectedAdapter);
-            //Console.WriteLine(config.suspendInterval);
-            //Console.WriteLine(config.dropDelay);
-
             if (config.hotkeys == null)
             {
                 Logger.log("[Warn] Hotkeys were null after loading from file");
                 LoadDefaultHotkeys();
             }
-
-            Console.WriteLine(config.ToString());
-
+            //Console.WriteLine(config.ToString());
             return;
         }
 
+        /// <summary>
+        /// Gets last number from a line of text
+        /// </summary>
+        /// <param name="lines">array of lines</param>
+        /// <param name="lineIdx">which line to get the number from</param>
+        /// <returns></returns>
         private static int GetNumberFromLine(string[] lines, int lineIdx)
         {
             //Console.WriteLine("GetNumberFromLine()");
             string line = lines[lineIdx];
+            // remove everything after the number
             while (!IsNumber(line.Substring(line.Length - 1, 1)))
             {
                 line = line.Substring(0, line.Length - 1);
             }
-
+            // get the number's "length"
             int numLength = 1;
             while (IsNumber(line.Substring(line.Length - numLength - 1, 1)))
             {
                 numLength++;
             }
-
+            // extract number
             int num = Convert.ToInt32(line.Substring(line.Length - numLength, numLength));
             //Console.WriteLine("number: " + num);
             return num;
         }
-
+        /// <summary>
+        /// is a piece of string a number or not<br/>
+        /// 0-9 returns true, anything else returns false
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
         private static bool IsNumber(string v)
         {
             return (v == "0" || v == "1" || v == "2" || v == "3" || v == "4" || v == "5" || v == "6" || v == "7" || v == "8" || v == "9");

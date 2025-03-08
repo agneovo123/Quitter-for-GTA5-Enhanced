@@ -121,9 +121,9 @@
     <value>17, 17</value>
   </metadata>
   <metadata name="timer_suspend.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>160, 18</value>
+    <value>155, 17</value>
   </metadata>
   <metadata name="timer_network.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>306, 20</value>
+    <value>286, 17</value>
   </metadata>
 </root>

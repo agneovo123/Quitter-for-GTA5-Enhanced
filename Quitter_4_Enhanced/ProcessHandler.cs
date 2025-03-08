@@ -30,6 +30,9 @@ namespace Quitter_4_Enhanced
                 }
             }
         }
+        /// <summary>
+        /// Tries to suspend the game process
+        /// </summary>
         public static void SuspendGameProcess()
         {
             GetGameProcess();
@@ -43,7 +46,9 @@ namespace Quitter_4_Enhanced
 
             Form1.form.timer_suspend.Start();
         }
-
+        /// <summary>
+        /// Tries to resume the game process
+        /// </summary>
         public static void ResumeGameProcess()
         {
             GetGameProcess();
@@ -55,7 +60,9 @@ namespace Quitter_4_Enhanced
             MyProcess.Resume();
             Logger.log($"Resumed process \"{ProcessName}\"");
         }
-
+        /// <summary>
+        /// Tries to kill the game process
+        /// </summary>
         public static void KillGameProcess()
         {
             GetGameProcess();

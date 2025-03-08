@@ -17,10 +17,22 @@ namespace Quitter_4_Enhanced
     public partial class Form1 : Form
     {
         public static Form1 form;
+        public static int timerWaitsFor = 10;
+        public static int comboSelectChanged = 0;
+        public static bool IgnoreBecauseLoading = true;
         public Form1()
         {
             form = this;
             InitializeComponent();
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            IgnoreBecauseLoading = true;
+            comboBox_Networks.SelectedIndex = 0;
+            ConfigHandler.TryLoadFromConfig();
+            NetworkHandler.GetNetworks();
+
+            HotkeyHandler.RegisterAll();
         }
         private void Form1_Click(object sender, EventArgs e)
         {
@@ -61,53 +73,6 @@ namespace Quitter_4_Enhanced
         }
         #endregion
 
-        #region networking_stuff
-        string MyAdapter;
-        private void button_get_networks_Click(object sender, EventArgs e)
-        {
-            List<string> adapters = net_adapters();
-            foreach (string adapter in adapters)
-            {
-                Console.WriteLine("Adapter: \"{0}\"", adapter);
-                if (adapter == "Ethernet 4")
-                {
-                    MyAdapter = adapter;
-                }
-            }
-        }
-        public System.Collections.Generic.List<String> net_adapters()
-        {
-            List<String> values = new List<String>();
-            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                values.Add(nic.Name);
-            }
-            return values;
-        }
-        private void button_OFF_Click(object sender, EventArgs e)
-        {
-            DisableAdapter(MyAdapter);
-        }
-        private void button_ON_Click(object sender, EventArgs e)
-        {
-            EnableAdapter(MyAdapter);
-        }
-        static void EnableAdapter(string interfaceName)
-        {
-            ProcessStartInfo psi = new ProcessStartInfo("netsh", "interface set interface \"" + interfaceName + "\" enable");
-            Process p = new Process();
-            p.StartInfo = psi;
-            p.Start();
-        }
-        static void DisableAdapter(string interfaceName)
-        {
-            ProcessStartInfo psi = new ProcessStartInfo("netsh", "interface set interface \"" + interfaceName + "\" disable");
-            Process p = new Process();
-            p.StartInfo = psi;
-            p.Start();
-        }
-        #endregion
-
         #region hotkey_stuff
         public int a = 1;
         // DLL libraries used to manage hotkeys
@@ -124,7 +89,9 @@ namespace Quitter_4_Enhanced
             // Compute the addition of each combination of the keys you want to be pressed
             // ALT+CTRL = 1 + 2 = 3 , CTRL+SHIFT = 2 + 4 = 6...
             //RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, 0, (int)Keys.F10);
-            RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, 6, (int)Keys.PageUp);
+            //RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, 6, (int)Keys.PageUp);
+
+            //HotkeyHandler.RegisterHotkeys();
 
             //Console.WriteLine(Keys.PageUp);
             //Console.WriteLine(Keys.Control);
@@ -142,11 +109,12 @@ namespace Quitter_4_Enhanced
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == 0x0312 && m.WParam.ToInt32() == MYACTION_HOTKEY_ID)
-            {
-                a++;
-                MessageBox.Show(a.ToString());
-            }
+            HotkeyHandler.HandleHotkeyPress(ref m);
+            //if (m.Msg == 0x0312 && m.WParam.ToInt32() == MYACTION_HOTKEY_ID)
+            //{
+            //    a++;
+            //    MessageBox.Show(a.ToString());
+            //}
             base.WndProc(ref m);
         }
 
@@ -157,16 +125,84 @@ namespace Quitter_4_Enhanced
         private void textBox_KillGame_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "KILL"); }
         private void textBox_DropNetwork_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "NET"); }
 
-        private void textBox_SoloTime_KeyPress(object sender, KeyPressEventArgs e)
+        // limit to numbers
+        private void textBox_SoloTime_KeyPress(object sender, KeyPressEventArgs e) { e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar); }
+        // limit to numbers
+        private void textBox_NetworkTime_KeyPress(object sender, KeyPressEventArgs e) { e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar); }
+
+        private void comboBox_Networks_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // limit to numbers
-            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+            if (!IgnoreBecauseLoading)
+            {
+                HotkeyHandler.UnregisterAll();
+                ConfigHandler.config.selectedAdapter = comboBox_Networks.SelectedIndex;
+            }
         }
-        private void textBox_NetworkTime_KeyPress(object sender, KeyPressEventArgs e)
+
+        internal void StartTimer()
         {
-            // limit to numbers
-            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+            timer_autisaver.Stop();
+            timer_autisaver.Start();
+            timerWaitsFor = 10;
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            timerWaitsFor--;
+            if (timerWaitsFor <= 0)
+            {
+                HotkeyHandler.RegisterAll();
+                ConfigHandler.SaveConfig();
+
+                timer_autisaver.Stop();
+                timerWaitsFor = 10;
+            }
+        }
+
+        private void timer_suspend_Tick(object sender, EventArgs e)
+        {
+
+            timer_suspend.Stop();
+        }
+
+        private void timer_network_Tick(object sender, EventArgs e)
+        {
+            NetworkHandler.EnableAdapter(Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString());
+            timer_network.Stop();
+        }
+
+        private void textBox_SoloTime_TextChanged(object sender, EventArgs e)
+        {
+            if (!IgnoreBecauseLoading)
+            {
+                int suspend = Convert.ToInt32(textBox_SoloTime.Text);
+                ConfigHandler.config.suspendInterval = suspend;
+                timer_suspend.Interval = suspend;
+                HotkeyHandler.UnregisterAll();
+            }
+        }
+
+        private void textBox_NetworkTime_TextChanged(object sender, EventArgs e)
+        {
+            if (!IgnoreBecauseLoading)
+            {
+                int dropDelay = Convert.ToInt32(textBox_NetworkTime.Text);
+                ConfigHandler.config.dropDelay = dropDelay;
+                timer_network.Interval = dropDelay * 1000;
+                HotkeyHandler.UnregisterAll();
+            }
+        }
+
+
+        //private void textBox_SoloKey_MouseEnter(object sender, EventArgs e)
+        //{
+        //    textBox_SoloKey.BackColor = Color.FromArgb(0, 51, 51);
+        //}
+        //
+        //private void textBox_SoloKey_MouseLeave(object sender, EventArgs e)
+        //{
+        //    textBox_SoloKey.BackColor = Color.FromArgb(0, 0, 0);
+        //}
 
     }
 }

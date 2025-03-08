@@ -5,11 +5,31 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Management;
+using System.Security.Principal;
 
 namespace Quitter_4_Enhanced
 {
     class NetworkHandler
     {
+        private static bool IsAdmin;
+        private static bool IsAdministrator()
+        {
+            return (new WindowsPrincipal(WindowsIdentity.GetCurrent()))
+                      .IsInRole(WindowsBuiltInRole.Administrator);
+        }
+        private static void CheckAdminRights()
+        {
+            IsAdmin = IsAdministrator();
+            if (!IsAdmin)
+            {
+                Form1.form.label_DropConn.ForeColor = System.Drawing.Color.FromArgb(0, 255, 255);
+                Form1.form.textBox_NetworkKey.ForeColor = System.Drawing.Color.FromArgb(170, 68, 68);
+                Form1.form.comboBox_Networks.ForeColor = System.Drawing.Color.FromArgb(170, 68, 68);
+                Logger.log("[WARN] Not launched as Administrator, can't manage network");
+                Logger.log("Drop network connection is unavailable");
+            }
+        }
         public static void GetNetworks()
         {
             List<string> adapters = net_adapters();
@@ -23,6 +43,7 @@ namespace Quitter_4_Enhanced
             }
             Form1.form.comboBox_Networks.SelectedIndex = ConfigHandler.config.selectedAdapter;
 
+            CheckAdminRights();
             //loading ends here.
             Form1.IgnoreBecauseLoading = false;
         }
@@ -38,45 +59,54 @@ namespace Quitter_4_Enhanced
         public static void EnableAdapter(string interfaceName)
         {
             Console.WriteLine("EnableAdapter()");
+            if (!IsAdmin)
+            {
+                Logger.log("Can't enable network adapter; Run as Administrator");
+                return;
+            }
+            Logger.log($"Enabling adapter \"{interfaceName}\"");
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo("netsh", "interface set interface \"" + interfaceName + "\" enable");
-                Process p = new Process();
-                p.StartInfo = psi;
-                p.Start();
+                string query = $"SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionID = '{interfaceName}'";
+                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(query))
+                {
+                    foreach (ManagementObject adapter in searcher.Get())
+                    {
+                        adapter.InvokeMethod("Enable", null);
+                    }
+                }
             }
             catch (Exception e)
             {
-                if (e.GetType().IsAssignableFrom(typeof(System.IndexOutOfRangeException)))
-                {
-                    Console.WriteLine("No Network Interface Provided");
-                }
-                else
-                {
-                    Console.WriteLine(e.Message);
-                }
+                Console.WriteLine(e.Message);
+                Logger.log(e.Message);
             }
         }
+
         public static void DisableAdapter(string interfaceName)
         {
             Console.WriteLine("DisableAdapter()");
+            if (!IsAdmin)
+            {
+                Logger.log("Can't disable network adapter; Run as Administrator");
+                return;
+            }
+            Logger.log($"Disabling adapter \"{interfaceName}\"");
             try
             {
-                ProcessStartInfo psi = new ProcessStartInfo("netsh", "interface set interface \"" + interfaceName + "\" disable");
-                Process p = new Process();
-                p.StartInfo = psi;
-                p.Start();
+                string query = $"SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionID = '{interfaceName}'";
+                using (ManagementObjectSearcher searcher = new ManagementObjectSearcher(query))
+                {
+                    foreach (ManagementObject adapter in searcher.Get())
+                    {
+                        adapter.InvokeMethod("Disable", null);
+                    }
+                }
             }
             catch (Exception e)
             {
-                if (e.GetType().IsAssignableFrom(typeof(System.IndexOutOfRangeException)))
-                {
-                    Console.WriteLine("No Network Interface Provided");
-                }
-                else
-                {
-                    Console.WriteLine(e.Message);
-                }
+                Console.WriteLine(e.Message);
+                Logger.log(e.Message);
             }
         }
     }

@@ -23,17 +23,19 @@ namespace Quitter_4_Enhanced
 
         public static void HandleHotkeyPress(ref Message m)
         {
-            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HOTKEY_ID_Solo)
+            if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Solo)
             {
-                MessageBox.Show("SOLO");
+                Console.WriteLine("HOTKEY : SOLO PRESSED");
+                ProcessHandler.SuspendGameProcess();
             }
-            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HOTKEY_ID_Kill)
+            if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Kill)
             {
-                MessageBox.Show("KILL");
+                Console.WriteLine("HOTKEY : KILL PRESSED");
+                ProcessHandler.KillGameProcess();
             }
-            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HOTKEY_ID_Net)
+            if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Net)
             {
-                MessageBox.Show("NET");
+                Console.WriteLine("HOTKEY : NET PRESSED");
                 NetworkHandler.DisableAdapter(Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString());
                 Form1.form.timer_network.Start();
             }

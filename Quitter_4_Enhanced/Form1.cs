@@ -27,6 +27,7 @@ namespace Quitter_4_Enhanced
         }
         private void Form1_Load(object sender, EventArgs e)
         {
+            //ProcessHandler.SaveAllprocesses();
             IgnoreBecauseLoading = true;
             comboBox_Networks.SelectedIndex = 0;
             ConfigHandler.TryLoadFromConfig();
@@ -34,90 +35,25 @@ namespace Quitter_4_Enhanced
 
             HotkeyHandler.RegisterAll();
         }
-        private void Form1_Click(object sender, EventArgs e)
+        private void RemoveActiveControl(object sender, EventArgs e)
         {
             // Remove focus from the current control
             this.ActiveControl = null;
         }
 
         #region process_stuff
-        Process MyProcess;
-        private void button1_Click(object sender, EventArgs e)
-        {
-            Process[] processlist = Process.GetProcesses();
 
-
-            foreach (Process process in processlist)
-            {
-                Console.WriteLine("Process: \"{0}\" ID: {1}", process.ProcessName, process.Id);
-                if (process.ProcessName == "notepad++")
-                {
-                    MyProcess = process;
-                    Console.WriteLine("\"notepad++\" FOUND");
-                }
-            }
-        }
-        private void button_suspend_Click(object sender, EventArgs e)
-        {
-            MyProcess.Suspend();
-        }
-
-        private void button_continue_Click(object sender, EventArgs e)
-        {
-            MyProcess.Resume();
-        }
-
-        private void button_kill_Click(object sender, EventArgs e)
-        {
-            MyProcess.Kill();
-        }
         #endregion
 
         #region hotkey_stuff
-        public int a = 1;
-        // DLL libraries used to manage hotkeys
-        [DllImport("user32.dll")]
-        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
-        [DllImport("user32.dll")]
-        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-        const int MYACTION_HOTKEY_ID = 1;
-
-        private void button_RegisterHotkey_Click(object sender, EventArgs e)
-        {
-            // Modifier keys codes: Alt = 1, Ctrl = 2, Shift = 4, Win = 8
-            // Compute the addition of each combination of the keys you want to be pressed
-            // ALT+CTRL = 1 + 2 = 3 , CTRL+SHIFT = 2 + 4 = 6...
-            //RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, 0, (int)Keys.F10);
-            //RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, 6, (int)Keys.PageUp);
-
-            //HotkeyHandler.RegisterHotkeys();
-
-            //Console.WriteLine(Keys.PageUp);
-            //Console.WriteLine(Keys.Control);
-            //Console.WriteLine(Keys.Shift);
-            //Console.WriteLine(Keys.Alt);
-        }
-
-        private void button_UnegisterHotkey_Click(object sender, EventArgs e)
-        {
-            // Modifier keys codes: Alt = 1, Ctrl = 2, Shift = 4, Win = 8
-            // Compute the addition of each combination of the keys you want to be pressed
-            // ALT+CTRL = 1 + 2 = 3 , CTRL+SHIFT = 2 + 4 = 6...
-            UnregisterHotKey(this.Handle, MYACTION_HOTKEY_ID);
-        }
-
         protected override void WndProc(ref Message m)
         {
-            HotkeyHandler.HandleHotkeyPress(ref m);
-            //if (m.Msg == 0x0312 && m.WParam.ToInt32() == MYACTION_HOTKEY_ID)
-            //{
-            //    a++;
-            //    MessageBox.Show(a.ToString());
-            //}
+            if (m.Msg == 0x0312)
+            {
+                HotkeyHandler.HandleHotkeyPress(ref m);
+            }
             base.WndProc(ref m);
         }
-
         #endregion
 
 
@@ -141,8 +77,8 @@ namespace Quitter_4_Enhanced
 
         internal void StartTimer()
         {
-            timer_autisaver.Stop();
-            timer_autisaver.Start();
+            timer_autosaver.Stop();
+            timer_autosaver.Start();
             timerWaitsFor = 10;
         }
 
@@ -154,14 +90,14 @@ namespace Quitter_4_Enhanced
                 HotkeyHandler.RegisterAll();
                 ConfigHandler.SaveConfig();
 
-                timer_autisaver.Stop();
+                timer_autosaver.Stop();
                 timerWaitsFor = 10;
             }
         }
 
         private void timer_suspend_Tick(object sender, EventArgs e)
         {
-
+            ProcessHandler.ResumeGameProcess();
             timer_suspend.Stop();
         }
 
@@ -191,6 +127,13 @@ namespace Quitter_4_Enhanced
                 timer_network.Interval = dropDelay * 1000;
                 HotkeyHandler.UnregisterAll();
             }
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Enable the adapter when closing to prevent some awkwardness
+            NetworkHandler.EnableAdapter(Form1.form.comboBox_Networks.Items[comboBox_Networks.SelectedIndex].ToString());
+
         }
 
 

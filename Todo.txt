@@ -6,18 +6,19 @@ Todo list:
     [+] Suspend/Resume
     [+] Instatnt turn off (Kill)
 
-[ ] Hotkeys:
+[+] Hotkeys:
     [+] Get/Set
-    [ ] Save/Load
-        [ ] use the same format as Flexcreator's Quitter
+    [+] Save/Load
+        [-] use the same format as Flexcreator's Quitter
+            - it uses differend encoding(?)(values) for the keys
     [+] Intercept (while window is not in focus) [seems to work]
 
 [+] Networking:
-    [ ] Select network 'card'
+    [+] Select network 'card'
     [+] Turn on/off
 
-[ ] visuals:
-    [ ] dark mode, minimalistic
+[+] visuals:
+    [+] dark mode, minimalistic
 .
 
 

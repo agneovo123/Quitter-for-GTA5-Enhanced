@@ -1,19 +1,18 @@
 {
   "hotkeys": [
-    {
-      "Key": 33,
-      "CombinedModifiers": 6
-    },
-    {
-      "Key": 46,
-      "CombinedModifiers": 6
-    },
-    {
-      "Key": 35,
-      "CombinedModifiers": 6
-    }
-  ],
-  "selectedAdapter": 1,
+  {
+    "Key": 33,
+    "CombinedModifiers": 6
+  },
+  {
+    "Key": 46,
+    "CombinedModifiers": 6
+  },
+  {
+    "Key": 35,
+    "CombinedModifiers": 6
+  }],
+  "selectedAdapter": 0,
   "suspendInterval": 10000,
   "dropDelay": 10
 }

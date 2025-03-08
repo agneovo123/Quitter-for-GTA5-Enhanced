@@ -13,6 +13,10 @@ namespace Quitter_4_Enhanced
         private static Process MyProcess = null;
         // "GTA5_Enhanced_BE"  // OH DEAR LORD THAT'S THE BATTLEEYE LAUNCHER OH GOD OH FUCK
         private const string ProcessName = "GTA5_Enhanced";
+        /// <summary>
+        /// Finds the process whose name is ProcessName
+        /// Sets the MyProcess global variable to the found process
+        /// </summary>
         public static void GetGameProcess()
         {
             Process[] processlist = Process.GetProcesses();
@@ -26,19 +30,6 @@ namespace Quitter_4_Enhanced
                 }
             }
         }
-
-        //public static void SaveAllprocesses()
-        //{
-        //    StreamWriter sw = new StreamWriter(DateTime.Now.ToString().Replace(':', '.') + " processes.txt");
-        //
-        //    Process[] processlist = Process.GetProcesses();
-        //    foreach (Process process in processlist)
-        //    {
-        //        sw.WriteLine("Process: \"{0}\" ID: {1}", process.ProcessName, process.Id);
-        //    }
-        //    sw.Close();
-        //}
-
         public static void SuspendGameProcess()
         {
             GetGameProcess();

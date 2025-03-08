@@ -136,25 +136,30 @@ namespace Quitter_4_Enhanced
                 key = (int)e.KeyCode;
             }
 
-            Logger.log(String.Format("{0}+{1}", combinedModifiers, key));
+            //Logger.log(String.Format("{0}+{1}", combinedModifiers, key));
 
             // Display the key combination in the textbox
-            // and register hotkeys
-            //if (name == "SOLO")
-            //{
-            //    Form1.form.textBox_SoloKey.Text = keyCombo.ToString();
-            //    RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Solo, combinedModifiers, key);
-            //}
-            //if (name == "KILL")
-            //{
-            //    Form1.form.textBox_KillKey.Text = keyCombo.ToString();
-            //    RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Kill, combinedModifiers, key);
-            //}
-            //if (name == "NET")
-            //{
-            //    Form1.form.textBox_NetworkKey.Text = keyCombo.ToString();
-            //    RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Net, combinedModifiers, key);
-            //}
+            if (name == "SOLO")
+            {
+                Form1.form.textBox_SoloKey.Text = keyCombo.ToString();
+                ConfigHandler.config.hotkeys[0].Key = key;
+                ConfigHandler.config.hotkeys[0].CombinedModifiers = combinedModifiers;
+                //RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Solo, combinedModifiers, key);
+            }
+            if (name == "KILL")
+            {
+                Form1.form.textBox_KillKey.Text = keyCombo.ToString();
+                ConfigHandler.config.hotkeys[1].Key = key;
+                ConfigHandler.config.hotkeys[1].CombinedModifiers = combinedModifiers;
+                //RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Kill, combinedModifiers, key);
+            }
+            if (name == "NET")
+            {
+                Form1.form.textBox_NetworkKey.Text = keyCombo.ToString();
+                ConfigHandler.config.hotkeys[2].Key = key;
+                ConfigHandler.config.hotkeys[2].CombinedModifiers = combinedModifiers;
+                //RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Net, combinedModifiers, key);
+            }
 
             // Optionally, prevent the default behavior
             e.SuppressKeyPress = true;

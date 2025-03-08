@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json;
 using System.Windows.Forms;
 
 namespace Quitter_4_Enhanced
@@ -10,6 +9,10 @@ namespace Quitter_4_Enhanced
     class ConfigHandler
     {
         public static Config config = new Config();
+        // Config's 3 hotkeys:
+        // 0: solo
+        // 1: kill
+        // 2: net
         public class Config
         {
             public MyKeys[] hotkeys { get; set; }
@@ -44,8 +47,7 @@ namespace Quitter_4_Enhanced
             // try to load from own file
             if (File.Exists(myFileName))
             {
-                string JSONstr = File.ReadAllText(myFileName);
-                LoadFromJSON(JSONstr);
+                LoadFromJSON();
                 Logger.log("Config loaded from own file");
                 Console.WriteLine("Config loaded from own file");
             }
@@ -79,8 +81,8 @@ namespace Quitter_4_Enhanced
             Form1.form.textBox_SoloTime.Text = config.suspendInterval.ToString();
             Form1.form.textBox_NetworkTime.Text = config.dropDelay.ToString();
 
-            Form1.form.timer_suspend.Interval = config.suspendInterval;
-            Form1.form.timer_network.Interval = config.dropDelay * 1000;
+            //Form1.form.timer_suspend.Interval = config.suspendInterval;
+            //Form1.form.timer_network.Interval = config.dropDelay * 1000;
         }
 
         private static string GetStringFromKeys(MyKeys keys)
@@ -142,8 +144,27 @@ namespace Quitter_4_Enhanced
         {
             Console.WriteLine("SaveConfig()");
 
-            JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
-            string JSONString = JsonSerializer.Serialize(config, options);
+            //JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
+            //string JSONString = JsonSerializer.Serialize(config, options);
+            string JSONString = "{"
+            + "\n  \"hotkeys\": ["
+            + "\n  {"
+            + $"\n    \"Key\": {config.hotkeys[0].Key},"
+            + $"\n    \"CombinedModifiers\": {config.hotkeys[0].CombinedModifiers}"
+            + "\n  },"
+            + "\n  {"
+            + $"\n    \"Key\": {config.hotkeys[1].Key},"
+            + $"\n    \"CombinedModifiers\": {config.hotkeys[1].CombinedModifiers}"
+            + "\n  },"
+            + "\n  {"
+            + $"\n    \"Key\": {config.hotkeys[2].Key},"
+            + $"\n    \"CombinedModifiers\": {config.hotkeys[2].CombinedModifiers}"
+            + "\n  }],"
+            + $"\n  \"selectedAdapter\": {config.selectedAdapter},"
+            + $"\n  \"suspendInterval\": {config.suspendInterval},"
+            + $"\n  \"dropDelay\": {config.dropDelay}"
+            + "\n}";
+
             File.WriteAllText(myFileName, JSONString);
 
             //Console.WriteLine(JSONString);
@@ -151,19 +172,26 @@ namespace Quitter_4_Enhanced
             Logger.log("Config autosaved");
         }
 
-        private static void LoadFromJSON(string jsonString)
+        private static void LoadFromJSON()
         {
-            Console.WriteLine(jsonString);
+            Console.WriteLine("LoadFromJSON()");
 
+            string[] lines = File.ReadAllLines(myFileName);
 
-            // Enable case-insensitive property matching
-            //JsonSerializerOptions options = new JsonSerializerOptions
-            //{
-            //    PropertyNameCaseInsensitive = true
-            //};
-            //Config result = JsonSerializer.Deserialize<Config>(jsonString, options);
-
-            config = JsonSerializer.Deserialize<Config>(jsonString);
+            config = new Config();
+            // "read" hotkeys
+            config.hotkeys = new MyKeys[3];
+            for (int i = 0; i < config.hotkeys.Length; i++) { config.hotkeys[i] = new MyKeys(); }
+            config.hotkeys[0].Key = GetNumberFromLine(lines, 3);
+            config.hotkeys[0].CombinedModifiers = GetNumberFromLine(lines, 4);
+            config.hotkeys[1].Key = GetNumberFromLine(lines, 7);
+            config.hotkeys[1].CombinedModifiers = GetNumberFromLine(lines, 8);
+            config.hotkeys[2].Key = GetNumberFromLine(lines, 11);
+            config.hotkeys[2].CombinedModifiers = GetNumberFromLine(lines, 12);
+            // "read" other
+            config.selectedAdapter = GetNumberFromLine(lines, 14);
+            config.suspendInterval = GetNumberFromLine(lines, 15);
+            config.dropDelay = GetNumberFromLine(lines, 16);
 
             //Console.WriteLine(config.selectedAdapter);
             //Console.WriteLine(config.suspendInterval);
@@ -178,6 +206,31 @@ namespace Quitter_4_Enhanced
             Console.WriteLine(config.ToString());
 
             return;
+        }
+
+        private static int GetNumberFromLine(string[] lines, int lineIdx)
+        {
+            //Console.WriteLine("GetNumberFromLine()");
+            string line = lines[lineIdx];
+            while (!IsNumber(line.Substring(line.Length - 1, 1)))
+            {
+                line = line.Substring(0, line.Length - 1);
+            }
+
+            int numLength = 1;
+            while (IsNumber(line.Substring(line.Length - numLength - 1, 1)))
+            {
+                numLength++;
+            }
+
+            int num = Convert.ToInt32(line.Substring(line.Length - numLength, numLength));
+            //Console.WriteLine("number: " + num);
+            return num;
+        }
+
+        private static bool IsNumber(string v)
+        {
+            return (v == "0" || v == "1" || v == "2" || v == "3" || v == "4" || v == "5" || v == "6" || v == "7" || v == "8" || v == "9");
         }
     }
 }

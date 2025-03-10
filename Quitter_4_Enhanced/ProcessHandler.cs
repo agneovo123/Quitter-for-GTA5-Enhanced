@@ -10,69 +10,114 @@ namespace Quitter_4_Enhanced
 {
     class ProcessHandler
     {
-        private static Process MyProcess = null;
-        // "GTA5_Enhanced_BE"  // OH DEAR LORD THAT'S THE BATTLEEYE LAUNCHER OH GOD OH FUCK
-        private const string ProcessName = "GTA5_Enhanced";
+        private static List<Process> MyProcesses = new List<Process>();
+        // The names of the processes to be suspended/killed
+        private static string[] ProcessNames = { "GTA5_Enhanced" };
         /// <summary>
-        /// Finds the process whose name is ProcessName
-        /// Sets the MyProcess global variable to the found process
+        /// Finds and collects the processes whose name is in the ProcessNames array
         /// </summary>
-        public static void GetGameProcess()
+        public static void GetGameProcesses()
         {
+            // clear list
+            MyProcesses.Clear();
+            // get processes
             Process[] processlist = Process.GetProcesses();
             foreach (Process process in processlist)
             {
                 //Console.WriteLine("Process: \"{0}\" ID: {1}", process.ProcessName, process.Id);
-                if (process.ProcessName == ProcessName)
+                // O(n*m) goes brrr
+                for (int i = 0; i < ProcessNames.Length; i++)
                 {
-                    MyProcess = process;
-                    //Console.WriteLine("\"process.ProcessName\" FOUND");
+                    if (process.ProcessName == ProcessNames[i])
+                    {
+                        MyProcesses.Add(process);
+                        //Console.WriteLine("\"process.ProcessName\" FOUND");
+                    }
                 }
             }
         }
         /// <summary>
-        /// Tries to suspend the game process
+        /// Tries to suspend the found processes
         /// </summary>
-        public static void SuspendGameProcess()
+        public static void SuspendGameProcesses()
         {
-            GetGameProcess();
-            if (MyProcess == null)
+            // get processes
+            GetGameProcesses();
+            // warn user if none found
+            if (MyProcesses.Count <= 0)
             {
-                Logger.log($"Can't suspend process \"{ProcessName}\" - NOT FOUND");
+                Logger.log($"Can't suspend processes, NOT FOUND");
                 return;
             }
-            MyProcess.Suspend();
-            Logger.log($"Suspended process \"{ProcessName}\"");
+            // names for reporting
+            string names = "";
+            // suspend all
+            for (int i = 0; i < MyProcesses.Count; i++)
+            {
+                MyProcesses[i].Suspend();
+                // add name to names
+                names += MyProcesses[i].ProcessName;
+                if (i + 1 < MyProcesses.Count) { names += ", "; }
+            }
+            // report to user
+            if (MyProcesses.Count > 1) { Logger.log($"Suspended processes \"{names}\""); }
+            else { Logger.log($"Suspended process \"{names}\""); }
 
             Form1.form.timer_suspend.Start();
         }
         /// <summary>
-        /// Tries to resume the game process
+        /// Tries to resume the found processes
         /// </summary>
-        public static void ResumeGameProcess()
+        public static void ResumeGameProcesses()
         {
-            GetGameProcess();
-            if (MyProcess == null)
+            // get processes
+            GetGameProcesses();
+            // warn user if none found
+            if (MyProcesses.Count <= 0)
             {
-                Logger.log($"Can't resume process \"{ProcessName}\" - NOT FOUND");
+                Logger.log($"Can't resume processes, NOT FOUND");
                 return;
             }
-            MyProcess.Resume();
-            Logger.log($"Resumed process \"{ProcessName}\"");
+            // names for reporting
+            string names = "";
+            // resume all
+            for (int i = 0; i < MyProcesses.Count; i++)
+            {
+                MyProcesses[i].Resume();
+                // add name to names
+                names += MyProcesses[i].ProcessName;
+                if (i + 1 < MyProcesses.Count) { names += ", "; }
+            }
+            // report to user
+            if (MyProcesses.Count > 1) { Logger.log($"Resumed processes \"{names}\""); }
+            else { Logger.log($"Resumed process \"{names}\""); }
         }
         /// <summary>
-        /// Tries to kill the game process
+        /// Tries to kill the found processes
         /// </summary>
-        public static void KillGameProcess()
+        public static void KillGameProcesses()
         {
-            GetGameProcess();
-            if (MyProcess == null)
+            // get processes
+            GetGameProcesses();
+            // warn user if none found
+            if (MyProcesses.Count <= 0)
             {
-                Logger.log($"Can't kill process \"{ProcessName}\" - NOT FOUND");
+                Logger.log($"Can't kill processes, NOT FOUND");
                 return;
             }
-            MyProcess.Kill();
-            Logger.log($"Killed process \"{ProcessName}\"");
+            // names for reporting
+            string names = "";
+            // kill all
+            for (int i = 0; i < MyProcesses.Count; i++)
+            {
+                MyProcesses[i].Kill();
+                // add name to names
+                names += MyProcesses[i].ProcessName;
+                if (i + 1 < MyProcesses.Count) { names += ", "; }
+            }
+            // report to user
+            if (MyProcesses.Count > 1) { Logger.log($"Killed processes \"{names}\""); }
+            else { Logger.log($"Killed process \"{names}\""); }
         }
     }
 }

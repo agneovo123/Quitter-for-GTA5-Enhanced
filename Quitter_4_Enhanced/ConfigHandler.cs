@@ -15,14 +15,14 @@ namespace Quitter_4_Enhanced
         // 2: net
         public class Config
         {
-            public MyKeys[] hotkeys { get; set; }
-            public int selectedAdapter { get; set; }
-            public int suspendInterval { get; set; }
-            public int dropDelay { get; set; }
+            public KeyCombo[] hotkeys;
+            public int selectedAdapter;
+            public int suspendInterval;
+            public int dropDelay;
             public override string ToString()
             {
                 string tmp = "";
-                foreach (MyKeys keys in hotkeys)
+                foreach (KeyCombo keys in hotkeys)
                 {
                     tmp += "\nKEYS:" + keys.CombinedModifiers + ":" + keys.Key;
                 }
@@ -33,15 +33,15 @@ namespace Quitter_4_Enhanced
                 return tmp;
             }
         }
-        public class MyKeys
+        public class KeyCombo
         {
-            public int Key { get; set; }
-            public int CombinedModifiers { get; set; }
+            public int Key;
+            public int CombinedModifiers;
         }
         /// <summary>
         /// config's filename
         /// </summary>
-        private static string configFilename = "Quitter4Enahnced.json";
+        private const string configFilename = "Quitter4Enahnced.json";
         /// <summary>
         /// Loads config from file <br/>
         /// or from hardcoded defaults if file wasn't found.
@@ -53,7 +53,7 @@ namespace Quitter_4_Enhanced
             {
                 LoadConfig();
                 Logger.log("Config loaded from own file");
-                Console.WriteLine("Config loaded from own file");
+                //Console.WriteLine("Config loaded from own file");
             }
             // no load from old quitter because it uses a different encoding of the keys
             //else if (File.Exists("Quitter.json"))
@@ -69,7 +69,7 @@ namespace Quitter_4_Enhanced
                 LoadDefaults();
                 Logger.log("Config files not found:");
                 Logger.log(" - Defaults loaded");
-                Console.WriteLine("Config files not found:\n - Defaults loaded");
+                //Console.WriteLine("Config files not found:\n - Defaults loaded");
                 SaveConfig();
             }
             ApplyConfigValues();
@@ -79,7 +79,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         private static void ApplyConfigValues()
         {
-            Console.WriteLine("SetTextBoxValues()");
+            //Console.WriteLine("SetTextBoxValues()");
 
             Form1.form.textBox_SoloKey.Text = GetStringFromKeys(config.hotkeys[0]);
             Form1.form.textBox_KillKey.Text = GetStringFromKeys(config.hotkeys[1]);
@@ -95,7 +95,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         /// <param name="keys">MyKeys keys to check</param>
         /// <returns></returns>
-        private static string GetStringFromKeys(MyKeys keys)
+        private static string GetStringFromKeys(KeyCombo keys)
         {
             StringBuilder keyCombo = new StringBuilder();
             if ((keys.CombinedModifiers & 1) == 1) { keyCombo.Append("Alt+"); }
@@ -136,10 +136,10 @@ namespace Quitter_4_Enhanced
         /// </summary>
         private static void LoadDefaultHotkeys()
         {
-            config.hotkeys = new MyKeys[3];
+            config.hotkeys = new KeyCombo[3];
             for (int i = 0; i < config.hotkeys.Length; i++)
             {
-                config.hotkeys[i] = new MyKeys();
+                config.hotkeys[i] = new KeyCombo();
             }
 
             config.hotkeys[0].Key = 33;
@@ -190,8 +190,8 @@ namespace Quitter_4_Enhanced
             // init config
             config = new Config();
             // "read" hotkeys
-            config.hotkeys = new MyKeys[3];
-            for (int i = 0; i < config.hotkeys.Length; i++) { config.hotkeys[i] = new MyKeys(); }
+            config.hotkeys = new KeyCombo[3];
+            for (int i = 0; i < config.hotkeys.Length; i++) { config.hotkeys[i] = new KeyCombo(); }
             config.hotkeys[0].Key = GetNumberFromLine(lines, 3);
             config.hotkeys[0].CombinedModifiers = GetNumberFromLine(lines, 4);
             config.hotkeys[1].Key = GetNumberFromLine(lines, 7);

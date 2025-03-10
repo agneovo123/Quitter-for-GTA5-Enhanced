@@ -100,7 +100,7 @@ namespace Quitter_4_Enhanced
         // suspend timer
         private void timer_suspend_Tick(object sender, EventArgs e)
         {
-            ProcessHandler.ResumeGameProcess();
+            ProcessHandler.ResumeGameProcesses();
             timer_suspend.Stop();
         }
         // network timer

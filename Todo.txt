@@ -21,6 +21,8 @@ Todo list:
     [+] dark mode, minimalistic
 .
 
+[ ] Should I add an 'All' button to networks?
+     - it would disable/enable add found adapters instead of 1
 
 
 

@@ -48,7 +48,7 @@ namespace Quitter_4_Enhanced
             // add adapter names to comboBox/dropDown
             foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
             {
-                Console.WriteLine("Adapter: \"{0}\"", nic.Name);
+                //Console.WriteLine("Adapter: \"{0}\"", nic.Name);
                 Form1.form.comboBox_Networks.Items.Add(nic.Name);
             }
             // set selected
@@ -64,10 +64,10 @@ namespace Quitter_4_Enhanced
         /// <param name="interfaceName">name of the network adapter</param>
         public static void EnableAdapter(string interfaceName)
         {
-            Console.WriteLine("EnableAdapter()");
+            //Console.WriteLine("EnableAdapter()");
             if (!IsAdmin)
             {
-                Logger.log("Can't enable network adapter; Run as Administrator");
+                Logger.log("Can't enable network adapter; Access Denied");
                 return;
             }
             Logger.log($"Enabling adapter \"{interfaceName}\"");
@@ -84,7 +84,7 @@ namespace Quitter_4_Enhanced
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                //Console.WriteLine(e.Message);
                 Logger.log(e.Message);
             }
         }
@@ -94,10 +94,10 @@ namespace Quitter_4_Enhanced
         /// <param name="interfaceName">name of the network adapter</param>
         public static void DisableAdapter(string interfaceName)
         {
-            Console.WriteLine("DisableAdapter()");
+            //Console.WriteLine("DisableAdapter()");
             if (!IsAdmin)
             {
-                Logger.log("Can't disable network adapter; Run as Administrator");
+                Logger.log("Can't disable network adapter; Access Denied");
                 return;
             }
             Logger.log($"Disabling adapter \"{interfaceName}\"");
@@ -114,9 +114,11 @@ namespace Quitter_4_Enhanced
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                //Console.WriteLine(e.Message);
                 Logger.log(e.Message);
             }
+            // start timer
+            Form1.form.timer_network.Start();
         }
     }
 }

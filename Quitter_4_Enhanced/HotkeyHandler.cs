@@ -28,19 +28,18 @@ namespace Quitter_4_Enhanced
         {
             if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Solo)
             {
-                Console.WriteLine("HOTKEY : SOLO PRESSED");
-                ProcessHandler.SuspendGameProcess();
+                //Console.WriteLine("HOTKEY : SOLO PRESSED");
+                ProcessHandler.SuspendGameProcesses();
             }
             if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Kill)
             {
-                Console.WriteLine("HOTKEY : KILL PRESSED");
-                ProcessHandler.KillGameProcess();
+                //Console.WriteLine("HOTKEY : KILL PRESSED");
+                ProcessHandler.KillGameProcesses();
             }
             if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Net)
             {
-                Console.WriteLine("HOTKEY : NET PRESSED");
+                //Console.WriteLine("HOTKEY : NET PRESSED");
                 NetworkHandler.DisableAdapter(Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString());
-                Form1.form.timer_network.Start();
             }
         }
         /// <summary>

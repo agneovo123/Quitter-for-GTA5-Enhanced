@@ -316,7 +316,7 @@ namespace Quitter_4_Enhanced
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
-            this.Text = "Quitter For GTAV Enhanced";
+            this.Text = "Quitter For GTAV Enhanced v0.2";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Click += new System.EventHandler(this.RemoveActiveControl);

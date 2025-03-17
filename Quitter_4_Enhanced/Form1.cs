@@ -43,6 +43,8 @@ namespace Quitter_4_Enhanced
             NetworkHandler.GetNetworks();
             // register hotkeys
             HotkeyHandler.RegisterAll();
+            // save currently running processes; used for expanding
+            //ProcessHandler.SaveAllProcessNames();
         }
         // Remove focus from the current control when clicking off of it
         private void RemoveActiveControl(object sender, EventArgs e)

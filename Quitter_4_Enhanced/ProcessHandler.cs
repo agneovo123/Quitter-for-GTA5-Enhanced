@@ -12,7 +12,7 @@ namespace Quitter_4_Enhanced
     {
         private static List<Process> MyProcesses = new List<Process>();
         // The names of the processes to be suspended/killed
-        private static string[] ProcessNames = { "GTA5_Enhanced" };
+        private static string[] ProcessNames = { "GTA5_Enhanced", "GTA5" };
         /// <summary>
         /// Finds and collects the processes whose name is in the ProcessNames array
         /// </summary>
@@ -35,6 +35,21 @@ namespace Quitter_4_Enhanced
                     }
                 }
             }
+        }
+        /// <summary>
+        /// saves all currently running processes to processes.txt
+        /// used for expanding/debug
+        /// </summary>
+        public static void SaveAllProcessNames()
+        {
+            StreamWriter sw = new StreamWriter("processes.txt");
+            // get processes
+            Process[] processlist = Process.GetProcesses();
+            foreach (Process process in processlist)
+            {
+                sw.WriteLine("Process: \"{0}\" ID: {1}", process.ProcessName, process.Id);
+            }
+            sw.Close();
         }
         /// <summary>
         /// Tries to suspend the found processes

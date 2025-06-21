@@ -19,6 +19,7 @@ namespace Quitter_4_Enhanced
             public int selectedAdapter;
             public int suspendInterval;
             public int dropDelay;
+            public bool selfTerminate;
             public override string ToString()
             {
                 string tmp = "";
@@ -89,6 +90,8 @@ namespace Quitter_4_Enhanced
 
             Form1.form.timer_suspend.Interval = config.suspendInterval;
             Form1.form.timer_network.Interval = config.dropDelay * 1000;
+
+            Form1.form.checkBox_selfTerminate.Checked = config.selfTerminate;
         }
         /// <summary>
         /// turns the keys object into a string
@@ -173,6 +176,7 @@ namespace Quitter_4_Enhanced
             + $"\n  \"selectedAdapter\": {config.selectedAdapter},"
             + $"\n  \"suspendInterval\": {config.suspendInterval},"
             + $"\n  \"dropDelay\": {config.dropDelay}"
+            + $"\n  \"selfTerminate\": " + (config.selfTerminate ? "true" : "false")
             + "\n}";
 
             File.WriteAllText(configFilename, JSONString);
@@ -202,6 +206,7 @@ namespace Quitter_4_Enhanced
             config.selectedAdapter = GetNumberFromLine(lines, 14);
             config.suspendInterval = GetNumberFromLine(lines, 15);
             config.dropDelay = GetNumberFromLine(lines, 16);
+            config.selfTerminate = GetBoolFromLine(lines, 17);
 
             if (config.hotkeys == null)
             {
@@ -237,6 +242,11 @@ namespace Quitter_4_Enhanced
             int num = Convert.ToInt32(line.Substring(line.Length - numLength, numLength));
             //Console.WriteLine("number: " + num);
             return num;
+        }
+        private static bool GetBoolFromLine(string[] lines, int lineIdx)
+        {
+            if (lineIdx >= lines.Length) { return false; }
+            return lines[lineIdx].Contains("true");
         }
         /// <summary>
         /// is a piece of string a number or not<br/>

@@ -53,6 +53,7 @@ namespace Quitter_4_Enhanced
             this.timer_network = new System.Windows.Forms.Timer(this.components);
             this.richTextBox_EventLog = new System.Windows.Forms.RichTextBox();
             this.timer_logger = new System.Windows.Forms.Timer(this.components);
+            this.checkBox_selfTerminate = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -93,7 +94,7 @@ namespace Quitter_4_Enhanced
             this.comboBox_Networks.MaxDropDownItems = 12;
             this.comboBox_Networks.Name = "comboBox_Networks";
             this.comboBox_Networks.Size = new System.Drawing.Size(557, 23);
-            this.comboBox_Networks.TabIndex = 5;
+            this.comboBox_Networks.TabIndex = 6;
             this.comboBox_Networks.TabStop = false;
             this.comboBox_Networks.SelectedIndexChanged += new System.EventHandler(this.comboBox_Networks_SelectedIndexChanged);
             // 
@@ -114,7 +115,7 @@ namespace Quitter_4_Enhanced
             this.textBox_NetworkTime.Location = new System.Drawing.Point(20, 129);
             this.textBox_NetworkTime.Name = "textBox_NetworkTime";
             this.textBox_NetworkTime.Size = new System.Drawing.Size(557, 21);
-            this.textBox_NetworkTime.TabIndex = 6;
+            this.textBox_NetworkTime.TabIndex = 7;
             this.textBox_NetworkTime.TabStop = false;
             this.textBox_NetworkTime.Text = "FillerText (If you see this, something went wrong)";
             this.textBox_NetworkTime.TextChanged += new System.EventHandler(this.textBox_NetworkTime_TextChanged);
@@ -147,7 +148,7 @@ namespace Quitter_4_Enhanced
             this.textBox_NetworkKey.Location = new System.Drawing.Point(20, 32);
             this.textBox_NetworkKey.Name = "textBox_NetworkKey";
             this.textBox_NetworkKey.Size = new System.Drawing.Size(557, 21);
-            this.textBox_NetworkKey.TabIndex = 4;
+            this.textBox_NetworkKey.TabIndex = 5;
             this.textBox_NetworkKey.TabStop = false;
             this.textBox_NetworkKey.Text = "FillerText (If you see this, something went wrong)";
             this.textBox_NetworkKey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_DropNetwork_KeyDown);
@@ -225,12 +226,13 @@ namespace Quitter_4_Enhanced
             // panel3
             // 
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel3.Controls.Add(this.checkBox_selfTerminate);
             this.panel3.Controls.Add(this.label4);
             this.panel3.Controls.Add(this.textBox_KillKey);
             this.panel3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.panel3.Location = new System.Drawing.Point(14, 136);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(595, 59);
+            this.panel3.Size = new System.Drawing.Size(595, 86);
             this.panel3.TabIndex = 2;
             this.panel3.Click += new System.EventHandler(this.RemoveActiveControl);
             // 
@@ -255,7 +257,7 @@ namespace Quitter_4_Enhanced
             this.panel4.Controls.Add(this.textBox_NetworkTime);
             this.panel4.Controls.Add(this.label3);
             this.panel4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.panel4.Location = new System.Drawing.Point(14, 206);
+            this.panel4.Location = new System.Drawing.Point(14, 233);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(595, 160);
             this.panel4.TabIndex = 3;
@@ -266,7 +268,7 @@ namespace Quitter_4_Enhanced
             this.label_DropConn.AutoSize = true;
             this.label_DropConn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
             this.label_DropConn.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.label_DropConn.Location = new System.Drawing.Point(19, 199);
+            this.label_DropConn.Location = new System.Drawing.Point(19, 226);
             this.label_DropConn.Name = "label_DropConn";
             this.label_DropConn.Size = new System.Drawing.Size(224, 15);
             this.label_DropConn.TabIndex = 0;
@@ -292,7 +294,7 @@ namespace Quitter_4_Enhanced
             this.richTextBox_EventLog.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.richTextBox_EventLog.DetectUrls = false;
             this.richTextBox_EventLog.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.richTextBox_EventLog.Location = new System.Drawing.Point(14, 372);
+            this.richTextBox_EventLog.Location = new System.Drawing.Point(14, 399);
             this.richTextBox_EventLog.Name = "richTextBox_EventLog";
             this.richTextBox_EventLog.ReadOnly = true;
             this.richTextBox_EventLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
@@ -306,12 +308,23 @@ namespace Quitter_4_Enhanced
             this.timer_logger.Interval = 1000;
             this.timer_logger.Tick += new System.EventHandler(this.timer_logger_Tick);
             // 
+            // checkBox_selfTerminate
+            // 
+            this.checkBox_selfTerminate.AutoSize = true;
+            this.checkBox_selfTerminate.Location = new System.Drawing.Point(21, 56);
+            this.checkBox_selfTerminate.Name = "checkBox_selfTerminate";
+            this.checkBox_selfTerminate.Size = new System.Drawing.Size(262, 19);
+            this.checkBox_selfTerminate.TabIndex = 4;
+            this.checkBox_selfTerminate.Text = "Exit quitter when terminating game process";
+            this.checkBox_selfTerminate.UseVisualStyleBackColor = true;
+            this.checkBox_selfTerminate.CheckedChanged += new System.EventHandler(this.checkBox_selfTerminate_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.ClientSize = new System.Drawing.Size(622, 507);
+            this.ClientSize = new System.Drawing.Size(622, 535);
             this.Controls.Add(this.richTextBox_EventLog);
             this.Controls.Add(this.label_DropConn);
             this.Controls.Add(this.panel4);
@@ -361,6 +374,7 @@ namespace Quitter_4_Enhanced
         public System.Windows.Forms.Label label_DropConn;
         public System.Windows.Forms.RichTextBox richTextBox_EventLog;
         private System.Windows.Forms.Timer timer_logger;
+        public System.Windows.Forms.CheckBox checkBox_selfTerminate;
     }
 }
 

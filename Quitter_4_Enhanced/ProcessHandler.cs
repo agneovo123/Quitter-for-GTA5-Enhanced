@@ -37,6 +37,30 @@ namespace Quitter_4_Enhanced
             }
         }
         /// <summary>
+        /// Finds game processes, and returns how many it found
+        /// </summary>
+        //public static int GetGameProcessCount()
+        //{
+        //    // clear list
+        //    MyProcesses.Clear();
+        //    // get processes
+        //    Process[] processlist = Process.GetProcesses();
+        //    foreach (Process process in processlist)
+        //    {
+        //        //Console.WriteLine("Process: \"{0}\" ID: {1}", process.ProcessName, process.Id);
+        //        // O(n*m) goes brrr
+        //        for (int i = 0; i < ProcessNames.Length; i++)
+        //        {
+        //            if (process.ProcessName == ProcessNames[i])
+        //            {
+        //                MyProcesses.Add(process);
+        //                //Console.WriteLine("\"process.ProcessName\" FOUND");
+        //            }
+        //        }
+        //    }
+        //    return MyProcesses.Count;
+        //}
+        /// <summary>
         /// saves all currently running processes to processes.txt
         /// used for expanding/debug
         /// </summary>
@@ -130,9 +154,12 @@ namespace Quitter_4_Enhanced
                 names += MyProcesses[i].ProcessName;
                 if (i + 1 < MyProcesses.Count) { names += ", "; }
             }
+            //Form1.lastTerminate = DateTime.Now;
             // report to user
             if (MyProcesses.Count > 1) { Logger.log($"Killed processes \"{names}\""); }
             else { Logger.log($"Killed process \"{names}\""); }
+
+            if (ConfigHandler.config.selfTerminate) { Form1.selfTerminte = true; }
         }
     }
 }

@@ -27,6 +27,11 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static bool IgnoreInputsBecauseLoading = true;
         public static HotkeyHandler _hotkeyHandler;
+
+        public static bool selfTerminte = false;
+        //public static DateTime lastTerminate;
+        // 2 minute timespan
+        //public static TimeSpan selfTerminate = new TimeSpan(0, 2, 0);
         public Form1()
         {
             form = this;
@@ -36,6 +41,8 @@ namespace Quitter_4_Enhanced
         {
             // start logger timer
             timer_logger.Start();
+            // start self terminating timer
+            //timer_terminateSelf.Start();
             // set loading to true
             IgnoreInputsBecauseLoading = true;
             // select 1st item in dropdown (dummy text on startup)
@@ -53,27 +60,12 @@ namespace Quitter_4_Enhanced
             //ProcessHandler.SaveAllProcessNames();
         }
         // Remove focus from the current control when clicking off of it
-        private void RemoveActiveControl(object sender, EventArgs e)
-        {
-            this.ActiveControl = null;
-        }
+        private void RemoveActiveControl(object sender, EventArgs e) { this.ActiveControl = null; }
 
         // keyDown events
-        private void textBox_SoloKey_KeyDown(object sender, KeyEventArgs e)
-        {
-            //HotkeyHandler.HandleHotkeyTextBox(e, "SOLO");
-            HotkeyHandler.HandleHotkeyTextBox(e, "SOLO");
-        }
-        private void textBox_KillGame_KeyDown(object sender, KeyEventArgs e)
-        {
-            //HotkeyHandler.HandleHotkeyTextBox(e, "KILL");
-            HotkeyHandler.HandleHotkeyTextBox(e, "KILL");
-        }
-        private void textBox_DropNetwork_KeyDown(object sender, KeyEventArgs e)
-        {
-            //HotkeyHandler.HandleHotkeyTextBox(e, "NET");
-            HotkeyHandler.HandleHotkeyTextBox(e, "NET");
-        }
+        private void textBox_SoloKey_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "SOLO"); }
+        private void textBox_KillGame_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "KILL"); }
+        private void textBox_DropNetwork_KeyDown(object sender, KeyEventArgs e) { HotkeyHandler.HandleHotkeyTextBox(e, "NET"); }
 
         // limit to numbers
         private void textBox_SoloTime_KeyPress(object sender, KeyPressEventArgs e) { e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar); }
@@ -87,7 +79,6 @@ namespace Quitter_4_Enhanced
                 // update config
                 ConfigHandler.config.selectedAdapter = comboBox_Networks.SelectedIndex;
                 // unregistering to autosave
-                //HotkeyHandler.UnregisterAll();
                 HotkeyHandler.UnregisterAll();
             }
         }
@@ -105,7 +96,6 @@ namespace Quitter_4_Enhanced
             timerWaitsFor--;
             if (timerWaitsFor <= 0)
             {
-                //HotkeyHandler.RegisterAll();
                 HotkeyHandler.RegisterAll();
                 ConfigHandler.SaveConfig();
 
@@ -130,7 +120,25 @@ namespace Quitter_4_Enhanced
         {
             //Console.WriteLine("timer_logger_Tick");
             Logger.LogFronmQueue();
+            if (ConfigHandler.config.selfTerminate && selfTerminte) { form.Close(); }
         }
+
+        //private void timer_terminateSelf_Tick(object sender, EventArgs e)
+        //{
+        //    if (DateTime.Now > lastTerminate + selfTerminate)
+        //    {
+        //        if (ProcessHandler.GetGameProcessCount() == 0)
+        //        {
+        //            // kill self.
+        //            form.Close();
+        //        }
+        //        else
+        //        {
+        //            // this seems stupid
+        //            lastTerminate = DateTime.Now;
+        //        }
+        //    }
+        //}
 
         // time inputs' eventhandler
         private void textBox_SoloTime_TextChanged(object sender, EventArgs e)
@@ -140,7 +148,6 @@ namespace Quitter_4_Enhanced
                 int suspend = Convert.ToInt32(textBox_SoloTime.Text);
                 ConfigHandler.config.suspendInterval = suspend;
                 timer_suspend.Interval = suspend;
-                //HotkeyHandler.UnregisterAll();
                 HotkeyHandler.UnregisterAll();
             }
         }
@@ -151,8 +158,16 @@ namespace Quitter_4_Enhanced
                 int dropDelay = Convert.ToInt32(textBox_NetworkTime.Text);
                 ConfigHandler.config.dropDelay = dropDelay;
                 timer_network.Interval = dropDelay * 1000;
-                //HotkeyHandler.UnregisterAll();
                 HotkeyHandler.UnregisterAll();
+            }
+        }
+
+        private void checkBox_selfTerminate_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!IgnoreInputsBecauseLoading)
+            {
+                HotkeyHandler.UnregisterAll();
+                ConfigHandler.config.selfTerminate = checkBox_selfTerminate.Checked;
             }
         }
         // Enable the adapter when closing to prevent some awkwardness

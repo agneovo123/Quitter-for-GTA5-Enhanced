@@ -48,10 +48,11 @@ namespace Quitter_4_Enhanced
             this.label_Terminate = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.label_DropConn = new System.Windows.Forms.Label();
-            this.listBox_EventLog = new System.Windows.Forms.ListBox();
             this.timer_autosaver = new System.Windows.Forms.Timer(this.components);
             this.timer_suspend = new System.Windows.Forms.Timer(this.components);
             this.timer_network = new System.Windows.Forms.Timer(this.components);
+            this.richTextBox_EventLog = new System.Windows.Forms.RichTextBox();
+            this.timer_logger = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -271,21 +272,6 @@ namespace Quitter_4_Enhanced
             this.label_DropConn.TabIndex = 0;
             this.label_DropConn.Text = "Drop connection (requires Admin rights)";
             // 
-            // listBox_EventLog
-            // 
-            this.listBox_EventLog.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.listBox_EventLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.listBox_EventLog.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.listBox_EventLog.FormattingEnabled = true;
-            this.listBox_EventLog.ItemHeight = 15;
-            this.listBox_EventLog.Location = new System.Drawing.Point(12, 372);
-            this.listBox_EventLog.Name = "listBox_EventLog";
-            this.listBox_EventLog.ScrollAlwaysVisible = true;
-            this.listBox_EventLog.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.listBox_EventLog.Size = new System.Drawing.Size(595, 122);
-            this.listBox_EventLog.TabIndex = 7;
-            this.listBox_EventLog.TabStop = false;
-            // 
             // timer_autosaver
             // 
             this.timer_autosaver.Interval = 1000;
@@ -300,13 +286,33 @@ namespace Quitter_4_Enhanced
             this.timer_network.Interval = 1000;
             this.timer_network.Tick += new System.EventHandler(this.timer_network_Tick);
             // 
+            // richTextBox_EventLog
+            // 
+            this.richTextBox_EventLog.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.richTextBox_EventLog.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.richTextBox_EventLog.DetectUrls = false;
+            this.richTextBox_EventLog.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.richTextBox_EventLog.Location = new System.Drawing.Point(14, 372);
+            this.richTextBox_EventLog.Name = "richTextBox_EventLog";
+            this.richTextBox_EventLog.ReadOnly = true;
+            this.richTextBox_EventLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
+            this.richTextBox_EventLog.Size = new System.Drawing.Size(595, 122);
+            this.richTextBox_EventLog.TabIndex = 8;
+            this.richTextBox_EventLog.TabStop = false;
+            this.richTextBox_EventLog.Text = "FillerText (If you see this, something went wrong)";
+            // 
+            // timer_logger
+            // 
+            this.timer_logger.Interval = 1000;
+            this.timer_logger.Tick += new System.EventHandler(this.timer_logger_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.ClientSize = new System.Drawing.Size(618, 507);
-            this.Controls.Add(this.listBox_EventLog);
+            this.ClientSize = new System.Drawing.Size(622, 507);
+            this.Controls.Add(this.richTextBox_EventLog);
             this.Controls.Add(this.label_DropConn);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.label_Terminate);
@@ -316,8 +322,8 @@ namespace Quitter_4_Enhanced
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
-            this.Text = "Quitter For GTAV Enhanced v0.2";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.Text = "Quitter For GTAV Enhanced v0.3";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Click += new System.EventHandler(this.RemoveActiveControl);
             this.panel1.ResumeLayout(false);
@@ -346,7 +352,6 @@ namespace Quitter_4_Enhanced
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label_Terminate;
         private System.Windows.Forms.Panel panel4;
-        public System.Windows.Forms.ListBox listBox_EventLog;
         public System.Windows.Forms.ComboBox comboBox_Networks;
         public System.Windows.Forms.TextBox textBox_NetworkTime;
         public System.Windows.Forms.TextBox textBox_SoloTime;
@@ -354,6 +359,8 @@ namespace Quitter_4_Enhanced
         public System.Windows.Forms.Timer timer_suspend;
         public System.Windows.Forms.Timer timer_network;
         public System.Windows.Forms.Label label_DropConn;
+        public System.Windows.Forms.RichTextBox richTextBox_EventLog;
+        private System.Windows.Forms.Timer timer_logger;
     }
 }
 

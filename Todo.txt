@@ -24,6 +24,10 @@ Todo list:
 [ ] Should I add an 'All' button to networks?
      - it would disable/enable add found adapters instead of 1
 
-
+[ ] prevent [possible(?)] double Dispose() in HotkeyHandler.UnregisterAll()
+[ ] setting the same hotkey will fire an event
+     - eg: set Terminate to DELETE, wait for autosave, set Terminate to DELETE again
+	 - results in the terminate command running before it's unregistered.
+	  - possible solution: start the unregistering on click, or enter, or focus; instead of the "TextChanged" event.
 
 

@@ -1,78 +1,91 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Quitter_4_Enhanced.ConfigHandler;
 
 namespace Quitter_4_Enhanced
 {
-    class HotkeyHandler
+    public class HotkeyHandler : IDisposable
     {
+        // delegate & imports
+        private delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+        private readonly LowLevelKeyboardProc _proc;
+        private IntPtr _hookId = IntPtr.Zero;
+        public HotkeyHandler()
+        {
+            _proc = HookCallback;
+            _hookId = SetHook(_proc);
+        }
+
         public static bool HotkeysRegistered = false;
-        // DLL libraries used to manage hotkeys
-        [DllImport("user32.dll")]
-        public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
-        [DllImport("user32.dll")]
-        public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-        // hotkey IDs
-        const int HOTKEY_ID_Solo = 1;
-        const int HOTKEY_ID_Kill = 2;
-        const int HOTKEY_ID_Net = 3;
-        /// <summary>
-        /// Calls methods based on which hotkeys were pressed
-        /// </summary>
-        /// <param name="m">Windows message apparently (idk)</param>
-        public static void HandleHotkeyPress(ref Message m)
+        public static HotKey HOTKEY_Solo;
+        public static HotKey HOTKEY_Kill;
+        public static HotKey HOTKEY_Net;
+        public struct HotKey
         {
-            if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Solo)
+            public int key;
+            public bool Ctrl;
+            public bool Alt;
+            public bool Shift;
+            public HotKey(int key, bool Ctrl, bool Alt, bool Shift)
             {
-                //Console.WriteLine("HOTKEY : SOLO PRESSED");
-                ProcessHandler.SuspendGameProcesses();
-            }
-            if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Kill)
-            {
-                //Console.WriteLine("HOTKEY : KILL PRESSED");
-                ProcessHandler.KillGameProcesses();
-            }
-            if (/*m.Msg == 0x0312 && */m.WParam.ToInt32() == HOTKEY_ID_Net)
-            {
-                //Console.WriteLine("HOTKEY : NET PRESSED");
-                NetworkHandler.DisableAdapter(Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString());
+                this.key = key;
+                this.Ctrl = Ctrl;
+                this.Alt = Alt;
+                this.Shift = Shift;
             }
         }
-        /// <summary>
-        /// Unregisters all hotkeys
-        /// </summary>
-        public static void UnregisterAll()
+        private IntPtr SetHook(LowLevelKeyboardProc proc)
         {
-            // don't allow multi-unregistering
-            if (HotkeysRegistered)
+            using (Process cur = Process.GetCurrentProcess())
+            using (ProcessModule mod = cur.MainModule)
             {
-                UnregisterHotKey(Form1.form.Handle, HOTKEY_ID_Solo);
-                UnregisterHotKey(Form1.form.Handle, HOTKEY_ID_Kill);
-                UnregisterHotKey(Form1.form.Handle, HOTKEY_ID_Net);
-                Logger.log("Unregistered hotkeys");
-                HotkeysRegistered = false;
-            }
-            Form1.form.StartTimer();
-        }
-        /// <summary>
-        /// Registers all hotkeys
-        /// </summary>
-        public static void RegisterAll()
-        {
-            // don't allow multi-registering
-            if (!HotkeysRegistered)
-            {
-                RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Solo, ConfigHandler.config.hotkeys[0].CombinedModifiers, ConfigHandler.config.hotkeys[0].Key);
-                RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Kill, ConfigHandler.config.hotkeys[1].CombinedModifiers, ConfigHandler.config.hotkeys[1].Key);
-                RegisterHotKey(Form1.form.Handle, HOTKEY_ID_Net, ConfigHandler.config.hotkeys[2].CombinedModifiers, ConfigHandler.config.hotkeys[2].Key);
-                HotkeysRegistered = true;
-                Logger.log("Registered hotkeys");
+                return NativeMethods.SetWindowsHookEx(
+                    NativeMethods.WH_KEYBOARD_LL,
+                    proc,
+                    NativeMethods.GetModuleHandle(mod.ModuleName),
+                    0
+                );
             }
         }
+
+        private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == (IntPtr)NativeMethods.WM_KEYDOWN)
+            {
+                int vkCode = Marshal.ReadInt32(lParam);
+                //Console.WriteLine("HookCallback vkCode: " + vkCode);
+                // check modifier state
+                bool ctrl = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
+                bool shift = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_SHIFT) & 0x8000) != 0;
+                bool alt = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_ALT) & 0x8000) != 0;
+                if (vkCode == HOTKEY_Solo.key && HOTKEY_Solo.Ctrl == ctrl && HOTKEY_Solo.Shift == shift && HOTKEY_Solo.Alt == alt)
+                {
+                    Task.Run(() => ProcessHandler.SuspendGameProcesses());
+                    //Console.WriteLine("HookCallback HOTKEY_Solo");
+                }
+                if (vkCode == HOTKEY_Kill.key && HOTKEY_Kill.Ctrl == ctrl && HOTKEY_Kill.Shift == shift && HOTKEY_Kill.Alt == alt)
+                {
+                    Task.Run(() => ProcessHandler.KillGameProcesses());
+                    //Console.WriteLine("HookCallback HOTKEY_Kill");
+                }
+                if (vkCode == HOTKEY_Net.key && HOTKEY_Net.Ctrl == ctrl && HOTKEY_Net.Shift == shift && HOTKEY_Net.Alt == alt)
+                {
+                    string interfaceName = Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString();
+                    Task.Run(() => NetworkHandler.DisableAdapter(interfaceName));
+                    //Console.WriteLine("HookCallback HOTKEY_Net");
+                }
+            }
+            // let the event pass through
+            return NativeMethods.CallNextHookEx(_hookId, nCode, wParam, lParam);
+        }
+
+
         /// <summary>
         /// Handles the changing of hotkeys
         /// </summary>
@@ -119,6 +132,7 @@ namespace Quitter_4_Enhanced
                 key = (int)e.KeyCode;
             }
             //Logger.log(String.Format("{0}+{1}", combinedModifiers, key));
+            //Console.WriteLine(String.Format("{0}+{1}", combinedModifiers, key));
 
             // display the key combination in the textbox(es)
             // and update config
@@ -143,6 +157,80 @@ namespace Quitter_4_Enhanced
             // prevent default behavior
             e.SuppressKeyPress = true;
             e.Handled = true;
+        }
+        /// <summary>
+        /// Registers all hotkeys
+        /// </summary>
+        public static void RegisterAll()
+        {
+            Console.WriteLine("RegisterAll()");
+            // don't allow multi-registering
+            if (!HotkeysRegistered)
+            {
+                SeparateModifiers(ConfigHandler.config.hotkeys[0].CombinedModifiers, out bool alt, out bool ctrl, out bool shift);
+                HOTKEY_Solo = new HotKey(ConfigHandler.config.hotkeys[0].Key, ctrl, alt, shift);
+
+                SeparateModifiers(ConfigHandler.config.hotkeys[1].CombinedModifiers, out alt, out ctrl, out shift);
+                HOTKEY_Kill = new HotKey(ConfigHandler.config.hotkeys[1].Key, ctrl, alt, shift);
+
+                SeparateModifiers(ConfigHandler.config.hotkeys[2].CombinedModifiers, out alt, out ctrl, out shift);
+                HOTKEY_Net = new HotKey(ConfigHandler.config.hotkeys[2].Key, ctrl, alt, shift);
+
+                Form1._hotkeyHandler = new HotkeyHandler();
+                HotkeysRegistered = true;
+                Logger.log("Registered hotkeys");
+            }
+        }
+        /// <summary>
+        /// Unregisters all hotkeys
+        /// </summary>
+        public static void UnregisterAll()
+        {
+            // don't allow multi-unregistering
+            if (HotkeysRegistered)
+            {
+                // TODO: prevent [possible(?)] double Dispose();
+                Form1._hotkeyHandler.Dispose();
+                Logger.log("Unregistered hotkeys");
+                Logger.log("Automatically registering 10 seconds after your last activity");
+                HotkeysRegistered = false;
+            }
+            Form1.form.StartTimer();
+        }
+
+        private static void SeparateModifiers(int combinedModifiers, out bool alt, out bool ctrl, out bool shift)
+        {
+            alt = (combinedModifiers & 0b0001) != 0;
+            ctrl = (combinedModifiers & 0b0010) != 0;
+            shift = (combinedModifiers & 0b0100) != 0;
+        }
+
+        public void Dispose() { if (_hookId != IntPtr.Zero) { NativeMethods.UnhookWindowsHookEx(_hookId); } }
+
+        private static class NativeMethods
+        {
+            public const int WH_KEYBOARD_LL = 13;
+            public const int WM_KEYDOWN = 0x0100;
+
+            [DllImport("user32.dll", SetLastError = true)]
+            public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
+
+            [DllImport("user32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+            [DllImport("user32.dll")]
+            public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+            [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+            public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+            [DllImport("user32.dll")]
+            public static extern short GetAsyncKeyState(int vKey);
+
+            public const int VK_SHIFT = 0x10;
+            public const int VK_CONTROL = 0x11;
+            public const int VK_ALT = 0x12;
         }
     }
 }

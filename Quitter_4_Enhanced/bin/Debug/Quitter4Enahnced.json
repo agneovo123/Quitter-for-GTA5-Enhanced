@@ -15,5 +15,5 @@
   "selectedAdapter": 1,
   "suspendInterval": 10000,
   "dropDelay": 10
-  "selfTerminate": true
+  "selfTerminate": false
 }

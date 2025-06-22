@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Quitter_4_Enhanced.ConfigHandler;
 
 namespace Quitter_4_Enhanced
 {
@@ -59,26 +58,23 @@ namespace Quitter_4_Enhanced
             if (nCode >= 0 && wParam == (IntPtr)NativeMethods.WM_KEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
-                //Console.WriteLine("HookCallback vkCode: " + vkCode);
                 // check modifier state
                 bool ctrl = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_CONTROL) & 0x8000) != 0;
                 bool shift = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_SHIFT) & 0x8000) != 0;
                 bool alt = (NativeMethods.GetAsyncKeyState(NativeMethods.VK_ALT) & 0x8000) != 0;
+                // check for hotkeys
                 if (vkCode == HOTKEY_Solo.key && HOTKEY_Solo.Ctrl == ctrl && HOTKEY_Solo.Shift == shift && HOTKEY_Solo.Alt == alt)
                 {
                     Task.Run(() => ProcessHandler.SuspendGameProcesses());
-                    //Console.WriteLine("HookCallback HOTKEY_Solo");
                 }
                 if (vkCode == HOTKEY_Kill.key && HOTKEY_Kill.Ctrl == ctrl && HOTKEY_Kill.Shift == shift && HOTKEY_Kill.Alt == alt)
                 {
                     Task.Run(() => ProcessHandler.KillGameProcesses());
-                    //Console.WriteLine("HookCallback HOTKEY_Kill");
                 }
                 if (vkCode == HOTKEY_Net.key && HOTKEY_Net.Ctrl == ctrl && HOTKEY_Net.Shift == shift && HOTKEY_Net.Alt == alt)
                 {
                     string interfaceName = Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString();
                     Task.Run(() => NetworkHandler.DisableAdapter(interfaceName));
-                    //Console.WriteLine("HookCallback HOTKEY_Net");
                 }
             }
             // let the event pass through
@@ -131,8 +127,6 @@ namespace Quitter_4_Enhanced
                 else { keyCombo.Append(e.KeyCode.ToString()); }
                 key = (int)e.KeyCode;
             }
-            //Logger.log(String.Format("{0}+{1}", combinedModifiers, key));
-            //Console.WriteLine(String.Format("{0}+{1}", combinedModifiers, key));
 
             // display the key combination in the textbox(es)
             // and update config
@@ -198,6 +192,13 @@ namespace Quitter_4_Enhanced
             Form1.form.StartTimer();
         }
 
+        /// <summary>
+        /// uncombines combinedModifiers
+        /// </summary>
+        /// <param name="combinedModifiers"></param>
+        /// <param name="alt"></param>
+        /// <param name="ctrl"></param>
+        /// <param name="shift"></param>
         private static void SeparateModifiers(int combinedModifiers, out bool alt, out bool ctrl, out bool shift)
         {
             alt = (combinedModifiers & 0b0001) != 0;

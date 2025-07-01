@@ -1,16 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Diagnostics;
-using static Quitter_4_Enhanced.ProcessExtension;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
 
 namespace Quitter_4_Enhanced
 {
@@ -34,30 +23,44 @@ namespace Quitter_4_Enhanced
         //public static TimeSpan selfTerminate = new TimeSpan(0, 2, 0);
         public Form1()
         {
-            form = this;
-            InitializeComponent();
+            try
+            {
+                form = this;
+                InitializeComponent();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message, "error");
+            }
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            // start logger timer
-            timer_logger.Start();
-            // start self terminating timer
-            //timer_terminateSelf.Start();
-            // set loading to true
-            IgnoreInputsBecauseLoading = true;
-            // select 1st item in dropdown (dummy text on startup)
-            comboBox_Networks.SelectedIndex = 0;
-            // remove dummy text from logger
-            richTextBox_EventLog.Text = "";
-            // load config
-            ConfigHandler.TryLoadFromConfig();
-            // get networks
-            NetworkHandler.GetNetworks();
-            // register hotkeys
-            HotkeyHandler.RegisterAll();
+            try
+            {
+                // start logger timer
+                timer_logger.Start();
+                // start self terminating timer
+                //timer_terminateSelf.Start();
+                // set loading to true
+                IgnoreInputsBecauseLoading = true;
+                // select 1st item in dropdown (dummy text on startup)
+                comboBox_Networks.SelectedIndex = 0;
+                // remove dummy text from logger
+                richTextBox_EventLog.Text = "";
+                // load config
+                ConfigHandler.TryLoadFromConfig();
+                // get networks
+                NetworkHandler.GetNetworks();
+                // register hotkeys
+                HotkeyHandler.RegisterAll();
 
-            // save currently running processes; used for expanding
-            //ProcessHandler.SaveAllProcessNames();
+                // save currently running processes; used for expanding
+                //ProcessHandler.SaveAllProcessNames();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message, "error");
+            }
         }
         // Remove focus from the current control when clicking off of it
         private void RemoveActiveControl(object sender, EventArgs e) { this.ActiveControl = null; }

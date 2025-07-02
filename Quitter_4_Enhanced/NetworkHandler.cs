@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Management;
+using System.Net.NetworkInformation;
 using System.Security.Principal;
 
 namespace Quitter_4_Enhanced
@@ -19,8 +14,7 @@ namespace Quitter_4_Enhanced
         /// <returns>true if program was 'Run as Admin'</returns>
         private static bool IsAdministrator()
         {
-            return (new WindowsPrincipal(WindowsIdentity.GetCurrent()))
-                      .IsInRole(WindowsBuiltInRole.Administrator);
+            return (new WindowsPrincipal(WindowsIdentity.GetCurrent())).IsInRole(WindowsBuiltInRole.Administrator);
         }
         /// <summary>
         /// Sets IsAdmin and warns user if the program wasn't started with Administrator rights.
@@ -43,6 +37,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void GetNetworks()
         {
+            Logger.logDEBUG($"GetNetworks():");
             // clear items
             Form1.form.comboBox_Networks.Items.Clear();
             // add adapter names to comboBox/dropDown
@@ -50,11 +45,14 @@ namespace Quitter_4_Enhanced
             {
                 //Console.WriteLine("Adapter: \"{0}\"", nic.Name);
                 Form1.form.comboBox_Networks.Items.Add(nic.Name);
+                Logger.logDEBUG($"adapter found: {nic.Name}");
             }
             // set selected
             Form1.form.comboBox_Networks.SelectedIndex = ConfigHandler.config.selectedAdapter;
 
             CheckAdminRights();
+            Logger.logDEBUG($"IsAdmin: {IsAdmin}");
+
             // loading ends here
             Form1.IgnoreInputsBecauseLoading = false;
         }
@@ -65,6 +63,7 @@ namespace Quitter_4_Enhanced
         public static void EnableAdapter(string interfaceName)
         {
             //Console.WriteLine("EnableAdapter()");
+            Logger.logDEBUG($"EnableAdapter() called");
             if (!IsAdmin)
             {
                 Logger.log("Can't enable network adapter; Access Denied");
@@ -95,6 +94,7 @@ namespace Quitter_4_Enhanced
         public static void DisableAdapter(string interfaceName)
         {
             //Console.WriteLine("DisableAdapter()");
+            Logger.logDEBUG($"DisableAdapter() called");
             if (!IsAdmin)
             {
                 Logger.log("Can't disable network adapter; Access Denied");
@@ -118,7 +118,11 @@ namespace Quitter_4_Enhanced
                 Logger.log(e.Message);
             }
             // start timer
-            Form1.form.timer_network.Start();
+            //Form1.form.timer_network.Start();
+            Form1.form.Invoke((Action)(() => { Form1.form.timer_network.Start(); }));
+            Logger.logDEBUG($"timer_network started");
+            Logger.logDEBUG($"timer_network.Enabled: {Form1.form.timer_network.Enabled}");
+            Logger.logDEBUG($"timer_network.Interval: {Form1.form.timer_network.Interval}(ms)");
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 
 namespace Quitter_4_Enhanced
 {
@@ -27,7 +25,7 @@ namespace Quitter_4_Enhanced
             return date + "." + date.Millisecond.ToString().PadLeft(3, '0');
         }
 
-        public static void LogFronmQueue()
+        public static void LogFromQueue()
         {
             int logLength = logQueue.Count;
             if (logLength > 0)
@@ -45,7 +43,44 @@ namespace Quitter_4_Enhanced
             logQueue.RemoveRange(0, logLength);
         }
 
+        public static void logDEBUG(string msg)
+        {
+            if (!Form1.DEBUGLOG) { return; }
+
+            //Color org = Form1.form.richTextBox_EventLog.SelectionColor;
+            //Form1.form.richTextBox_EventLog.SelectionColor = Color.Yellow;
+
+            //string str = DateToStr(DateTime.Now) + " > [DEBUG] " + msg;
+            //if (firstLine) { Form1.form.richTextBox_EventLog.Text += str; firstLine = false; }
+            //else { Form1.form.richTextBox_EventLog.Text += ("\n" + str); }
+
+            //Form1.form.richTextBox_EventLog.SelectionColor = org;
 
 
+
+            logQueue.Add($"{DateToStr(DateTime.Now)} > [DEBUG] {msg}");
+        }
+        public static void logDEBUGConfig()
+        {
+            if (!Form1.DEBUGLOG) { return; }
+
+            //Color org = Form1.form.richTextBox_EventLog.SelectionColor;
+            //Form1.form.richTextBox_EventLog.SelectionColor = Color.Yellow;
+
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG] CONFIG:";
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG] Hotkeys:";
+
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG]   solo: {ConfigHandler.config.hotkeys[0].CombinedModifiers}+{ConfigHandler.config.hotkeys[0].Key}";
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG]   kill: {ConfigHandler.config.hotkeys[1].CombinedModifiers}+{ConfigHandler.config.hotkeys[1].Key}";
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG]   net: {ConfigHandler.config.hotkeys[2].CombinedModifiers}+{ConfigHandler.config.hotkeys[2].Key}";
+
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG] selectedAdapter: {ConfigHandler.config.selectedAdapter}";
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG] suspendInterval: {ConfigHandler.config.suspendInterval}";
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG] dropDelay: {ConfigHandler.config.dropDelay}";
+            Form1.form.richTextBox_EventLog.Text += $"\n{DateToStr(DateTime.Now)} > [DEBUG] selfTerminate: {ConfigHandler.config.selfTerminate}";
+
+
+            //Form1.form.richTextBox_EventLog.SelectionColor = org;
+        }
     }
 }

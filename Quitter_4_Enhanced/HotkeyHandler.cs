@@ -89,6 +89,7 @@ namespace Quitter_4_Enhanced
         /// <param name="name">SOLO,KILL,NET</param>
         public static void HandleHotkeyTextBox(KeyEventArgs e, string name)
         {
+            Logger.logDEBUG($"HandleHotkeyTextBox() called");
             // unregister previous hotkeys
             UnregisterAll();
 
@@ -128,6 +129,11 @@ namespace Quitter_4_Enhanced
                 key = (int)e.KeyCode;
             }
 
+            Logger.logDEBUG($"name: {name}");
+            Logger.logDEBUG($"  keyCombo: {keyCombo.ToString()}");
+            Logger.logDEBUG($"  key: {key}");
+            Logger.logDEBUG($"  combinedModifiers: {combinedModifiers}");
+
             // display the key combination in the textbox(es)
             // and update config
             if (name == "SOLO")
@@ -157,6 +163,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void RegisterAll()
         {
+            Logger.logDEBUG($"RegisterAll() called");
             Console.WriteLine("RegisterAll()");
             // don't allow multi-registering
             if (!HotkeysRegistered)
@@ -180,6 +187,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void UnregisterAll()
         {
+            Logger.logDEBUG($"UnregisterAll() called");
             // don't allow multi-unregistering
             if (HotkeysRegistered)
             {

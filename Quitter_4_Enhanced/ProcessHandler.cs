@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace Quitter_4_Enhanced
@@ -18,6 +15,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void GetGameProcesses()
         {
+            Logger.logDEBUG($"GetGameProcesses() called");
             // clear list
             MyProcesses.Clear();
             // get processes
@@ -31,7 +29,7 @@ namespace Quitter_4_Enhanced
                     if (process.ProcessName == ProcessNames[i])
                     {
                         MyProcesses.Add(process);
-                        //Console.WriteLine("\"process.ProcessName\" FOUND");
+                        Logger.logDEBUG($"process found: {process}");
                     }
                 }
             }
@@ -80,6 +78,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void SuspendGameProcesses()
         {
+            Logger.logDEBUG($"SuspendGameProcesses() called");
             // get processes
             GetGameProcesses();
             // warn user if none found
@@ -102,13 +101,18 @@ namespace Quitter_4_Enhanced
             if (MyProcesses.Count > 1) { Logger.log($"Suspended processes \"{names}\""); }
             else { Logger.log($"Suspended process \"{names}\""); }
 
-            Form1.form.timer_suspend.Start();
+            //Form1.form.timer_suspend.Start();
+            Form1.form.Invoke((Action)(() => { Form1.form.timer_suspend.Start(); }));
+            Logger.logDEBUG($"timer_suspend started");
+            Logger.logDEBUG($"timer_suspend.Enabled: {Form1.form.timer_suspend.Enabled}");
+            Logger.logDEBUG($"timer_suspend.Interval: {Form1.form.timer_suspend.Interval}(ms)");
         }
         /// <summary>
         /// Tries to resume the found processes
         /// </summary>
         public static void ResumeGameProcesses()
         {
+            Logger.logDEBUG($"ResumeGameProcesses() called");
             // get processes
             GetGameProcesses();
             // warn user if none found
@@ -136,6 +140,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void KillGameProcesses()
         {
+            Logger.logDEBUG($"KillGameProcesses() called");
             // get processes
             GetGameProcesses();
             // warn user if none found

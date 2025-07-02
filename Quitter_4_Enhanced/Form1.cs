@@ -21,6 +21,8 @@ namespace Quitter_4_Enhanced
         //public static DateTime lastTerminate;
         // 2 minute timespan
         //public static TimeSpan selfTerminate = new TimeSpan(0, 2, 0);
+
+        public static readonly bool DEBUGLOG = false;
         public Form1()
         {
             try
@@ -30,7 +32,7 @@ namespace Quitter_4_Enhanced
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.Message, "error");
+                MessageBox.Show(err.Message, "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -59,7 +61,7 @@ namespace Quitter_4_Enhanced
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.Message, "error");
+                MessageBox.Show(err.Message, "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         // Remove focus from the current control when clicking off of it
@@ -109,6 +111,7 @@ namespace Quitter_4_Enhanced
         // suspend timer
         private void timer_suspend_Tick(object sender, EventArgs e)
         {
+            Logger.logDEBUG("timer_suspend_Tick() called");
             ProcessHandler.ResumeGameProcesses();
             timer_suspend.Stop();
         }
@@ -122,7 +125,7 @@ namespace Quitter_4_Enhanced
         private void timer_logger_Tick(object sender, EventArgs e)
         {
             //Console.WriteLine("timer_logger_Tick");
-            Logger.LogFronmQueue();
+            Logger.LogFromQueue();
             if (ConfigHandler.config.selfTerminate && selfTerminte) { form.Close(); }
         }
 

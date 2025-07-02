@@ -49,6 +49,7 @@ namespace Quitter_4_Enhanced
         /// </summary>
         public static void TryLoadFromConfig()
         {
+            Logger.logDEBUG("TryLoadFromConfig() start");
             // try to load from own file
             if (File.Exists(configFilename))
             {
@@ -74,6 +75,7 @@ namespace Quitter_4_Enhanced
                 SaveConfig();
             }
             ApplyConfigValues();
+            Logger.logDEBUGConfig();
         }
         /// <summary>
         /// Sets controls' values from config

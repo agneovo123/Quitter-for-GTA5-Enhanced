@@ -45,6 +45,7 @@ namespace Quitter_4_Enhanced
             this.panel1 = new System.Windows.Forms.Panel();
             this.label_Suspend = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.checkBox_selfTerminate = new System.Windows.Forms.CheckBox();
             this.label_Terminate = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.label_DropConn = new System.Windows.Forms.Label();
@@ -53,7 +54,6 @@ namespace Quitter_4_Enhanced
             this.timer_network = new System.Windows.Forms.Timer(this.components);
             this.richTextBox_EventLog = new System.Windows.Forms.RichTextBox();
             this.timer_logger = new System.Windows.Forms.Timer(this.components);
-            this.checkBox_selfTerminate = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -236,6 +236,17 @@ namespace Quitter_4_Enhanced
             this.panel3.TabIndex = 2;
             this.panel3.Click += new System.EventHandler(this.RemoveActiveControl);
             // 
+            // checkBox_selfTerminate
+            // 
+            this.checkBox_selfTerminate.AutoSize = true;
+            this.checkBox_selfTerminate.Location = new System.Drawing.Point(21, 56);
+            this.checkBox_selfTerminate.Name = "checkBox_selfTerminate";
+            this.checkBox_selfTerminate.Size = new System.Drawing.Size(262, 19);
+            this.checkBox_selfTerminate.TabIndex = 4;
+            this.checkBox_selfTerminate.Text = "Exit quitter when terminating game process";
+            this.checkBox_selfTerminate.UseVisualStyleBackColor = true;
+            this.checkBox_selfTerminate.CheckedChanged += new System.EventHandler(this.checkBox_selfTerminate_CheckedChanged);
+            // 
             // label_Terminate
             // 
             this.label_Terminate.AutoSize = true;
@@ -308,17 +319,6 @@ namespace Quitter_4_Enhanced
             this.timer_logger.Interval = 1000;
             this.timer_logger.Tick += new System.EventHandler(this.timer_logger_Tick);
             // 
-            // checkBox_selfTerminate
-            // 
-            this.checkBox_selfTerminate.AutoSize = true;
-            this.checkBox_selfTerminate.Location = new System.Drawing.Point(21, 56);
-            this.checkBox_selfTerminate.Name = "checkBox_selfTerminate";
-            this.checkBox_selfTerminate.Size = new System.Drawing.Size(262, 19);
-            this.checkBox_selfTerminate.TabIndex = 4;
-            this.checkBox_selfTerminate.Text = "Exit quitter when terminating game process";
-            this.checkBox_selfTerminate.UseVisualStyleBackColor = true;
-            this.checkBox_selfTerminate.CheckedChanged += new System.EventHandler(this.checkBox_selfTerminate_CheckedChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -335,7 +335,7 @@ namespace Quitter_4_Enhanced
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
-            this.Text = "Quitter For GTAV Enhanced v0.3";
+            this.Text = "Quitter For GTAV Enhanced v0.4";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Click += new System.EventHandler(this.RemoveActiveControl);

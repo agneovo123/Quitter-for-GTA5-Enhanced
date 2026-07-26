@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Quitter_4_Enhanced
@@ -42,8 +40,6 @@ namespace Quitter_4_Enhanced
             {
                 // start logger timer
                 timer_logger.Start();
-                // start self terminating timer
-                //timer_terminateSelf.Start();
                 // set loading to true
                 IgnoreInputsBecauseLoading = true;
                 // select 1st item in dropdown (dummy text on startup)
@@ -65,14 +61,10 @@ namespace Quitter_4_Enhanced
             }
         }
 
-
-        protected override void WndProc(ref Message m)
-        {
-            HotkeyHandler.WndProc(ref m);
-            base.WndProc(ref m);
-        }
-
-
+        /// <summary>
+        /// reroute WndProc to HotkeyHandler (looks nicer if all hotkey stuff is in the same place)
+        /// </summary>
+        protected override void WndProc(ref Message m) { HotkeyHandler.WndProc(ref m); base.WndProc(ref m); }
 
 
         // Remove focus from the current control when clicking off of it
@@ -139,23 +131,6 @@ namespace Quitter_4_Enhanced
             Logger.LogFromQueue();
             if (ConfigHandler.config.selfTerminate && selfTerminte) { form.Close(); }
         }
-
-        //private void timer_terminateSelf_Tick(object sender, EventArgs e)
-        //{
-        //    if (DateTime.Now > lastTerminate + selfTerminate)
-        //    {
-        //        if (ProcessHandler.GetGameProcessCount() == 0)
-        //        {
-        //            // kill self.
-        //            form.Close();
-        //        }
-        //        else
-        //        {
-        //            // this seems stupid
-        //            lastTerminate = DateTime.Now;
-        //        }
-        //    }
-        //}
 
         // time inputs' eventhandler
         private void textBox_SoloTime_TextChanged(object sender, EventArgs e)

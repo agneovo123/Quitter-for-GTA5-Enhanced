@@ -9,9 +9,6 @@ namespace Quitter_4_Enhanced
     public class HotkeyHandler
     {
         public static bool HotkeysRegistered = false;
-        public static HotKey HOTKEY_Solo;
-        public static HotKey HOTKEY_Kill;
-        public static HotKey HOTKEY_Net;
         public struct HotKey
         {
             public uint key;

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Quitter_4_Enhanced
@@ -15,7 +17,6 @@ namespace Quitter_4_Enhanced
         /// This variable is used to prevents that.
         /// </summary>
         public static bool IgnoreInputsBecauseLoading = true;
-        public static HotkeyHandler _hotkeyHandler;
 
         public static bool selfTerminte = false;
         //public static DateTime lastTerminate;
@@ -55,7 +56,6 @@ namespace Quitter_4_Enhanced
                 NetworkHandler.GetNetworks();
                 // register hotkeys
                 HotkeyHandler.RegisterAll();
-
                 // save currently running processes; used for expanding
                 //ProcessHandler.SaveAllProcessNames();
             }
@@ -64,6 +64,17 @@ namespace Quitter_4_Enhanced
                 MessageBox.Show(err.Message, "error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
+        protected override void WndProc(ref Message m)
+        {
+            HotkeyHandler.WndProc(ref m);
+            base.WndProc(ref m);
+        }
+
+
+
+
         // Remove focus from the current control when clicking off of it
         private void RemoveActiveControl(object sender, EventArgs e) { this.ActiveControl = null; }
 
@@ -181,7 +192,6 @@ namespace Quitter_4_Enhanced
         {
             // Enable the adapter when closing to prevent some awkwardness
             NetworkHandler.EnableAdapter(Form1.form.comboBox_Networks.Items[comboBox_Networks.SelectedIndex].ToString());
-            _hotkeyHandler.Dispose();
         }
     }
 }

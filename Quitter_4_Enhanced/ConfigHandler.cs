@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -36,8 +35,8 @@ namespace Quitter_4_Enhanced
         }
         public class KeyCombo
         {
-            public int Key;
-            public int CombinedModifiers;
+            public uint Key;
+            public uint CombinedModifiers;
         }
         /// <summary>
         /// config's filename
@@ -116,7 +115,7 @@ namespace Quitter_4_Enhanced
         /// System.Windows.Forms.Keys enum but in reverse<br/>
         /// as in: you provide an int and get a key's name
         /// </summary>
-        static string KeysToString(int keyCode)
+        static string KeysToString(uint keyCode)
         {
             string name = Enum.GetName(typeof(Keys), keyCode) ?? "UnknownKey";
             if (name == "Prior") { name = "PageUp"; }
@@ -205,9 +204,9 @@ namespace Quitter_4_Enhanced
             config.hotkeys[2].Key = GetNumberFromLine(lines, 11);
             config.hotkeys[2].CombinedModifiers = GetNumberFromLine(lines, 12);
             // "read" other
-            config.selectedAdapter = GetNumberFromLine(lines, 14);
-            config.suspendInterval = GetNumberFromLine(lines, 15);
-            config.dropDelay = GetNumberFromLine(lines, 16);
+            config.selectedAdapter = (int)GetNumberFromLine(lines, 14);
+            config.suspendInterval = (int)GetNumberFromLine(lines, 15);
+            config.dropDelay = (int)GetNumberFromLine(lines, 16);
             config.selfTerminate = GetBoolFromLine(lines, 17);
 
             if (config.hotkeys == null)
@@ -225,7 +224,7 @@ namespace Quitter_4_Enhanced
         /// <param name="lines">array of lines</param>
         /// <param name="lineIdx">which line to get the number from</param>
         /// <returns></returns>
-        private static int GetNumberFromLine(string[] lines, int lineIdx)
+        private static uint GetNumberFromLine(string[] lines, int lineIdx)
         {
             //Console.WriteLine("GetNumberFromLine()");
             string line = lines[lineIdx];
@@ -241,7 +240,7 @@ namespace Quitter_4_Enhanced
                 numLength++;
             }
             // extract number
-            int num = Convert.ToInt32(line.Substring(line.Length - numLength, numLength));
+            uint num = Convert.ToUInt32(line.Substring(line.Length - numLength, numLength));
             //Console.WriteLine("number: " + num);
             return num;
         }

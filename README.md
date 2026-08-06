@@ -21,6 +21,6 @@ Based on this tool by flexcreator (YouTube video):<br/>
 
 <br/><br/><br/>
 ### Footnotes:
-[^1]: Since the [whitchewer,idk DLC] you can do sell missions in solo/invite only lobbies. The only use I've found is to quickly get a new lobby when you start lagging.
+[^1]: Since the [whitchewer,idk DLC] you can do sell missions in solo/invite only lobbies. You can use this to get to freemode faster after missions.
 [^2]: You can prevent the game from handling money/xp changes if you're quick enough to kill the game.
 [^3]: You will need to run the program with administrator privileges

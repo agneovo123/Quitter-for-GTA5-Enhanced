@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Quitter_4_Enhanced
@@ -51,7 +52,8 @@ namespace Quitter_4_Enhanced
                 // get networks
                 NetworkHandler.GetNetworks();
                 // register hotkeys
-                HotkeyHandler.RegisterAll();
+                HotkeyHandler.Init();
+                //HotkeyHandler.RegisterAll();
                 // save currently running processes; used for expanding
                 //ProcessHandler.SaveAllProcessNames();
             }

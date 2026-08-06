@@ -8,6 +8,199 @@ namespace Quitter_4_Enhanced
 {
     public class HotkeyHandler
     {
+        private const int WM_INPUT = 0x00FF;
+        private const int RID_INPUT = 0x10000003;
+        private const uint RIDEV_INPUTSINK = 0x00000100;
+
+        private const ushort RIM_TYPEKEYBOARD = 1;
+
+        private const uint RIDI_PREPARSEDDATA = 0x20000005; // ???
+        private const uint RIDI_DEVICEINFO = 0x2000000B;    // ???
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] pRawInputDevices, uint uiNumDevices, uint cbSize);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetRawInputData(IntPtr hRawInput, uint uiCommand, IntPtr pData, ref uint pcbSize, uint cbSizeHeader);
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RAWINPUTDEVICE
+        {
+            public ushort usUsagePage;
+            public ushort usUsage;
+            public uint dwFlags;
+            public IntPtr hwndTarget;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RAWINPUTHEADER
+        {
+            public uint dwType;
+            public uint dwSize;
+            public IntPtr hDevice;
+            public IntPtr wParam;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RAWINPUT
+        {
+            public RAWINPUTHEADER header;
+            public RAWKEYBOARD keyboard;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RAWKEYBOARD
+        {
+            public ushort MakeCode;
+            public ushort Flags;
+            public ushort Reserved;
+            public ushort VKey;
+            public uint Message;
+            public uint ExtraInformation;
+        }
+
+        public static void Init()
+        {
+            RAWINPUTDEVICE[] devices =
+            {
+                new RAWINPUTDEVICE
+                {
+                    usUsagePage = 0x01, // Generic desktop controls
+                    usUsage = 0x06,     // Keyboard
+                    //dwFlags = 0,        // Do NOT suppress input
+                    dwFlags = RIDEV_INPUTSINK,        // Do NOT suppress input
+                    hwndTarget = Form1.form.Handle
+                }
+            };
+
+            if (!RegisterRawInputDevices(devices, (uint)devices.Length, (uint)Marshal.SizeOf(typeof(RAWINPUTDEVICE))))
+            {
+                throw new Exception("RegisterRawInputDevices failed");
+            }
+        }
+
+        public static void WndProc(ref Message m)
+        {
+            // DO NOT OUTPUT ANYTHING HERE, THIS IS CONSTANTLY CALLED!!
+            //Logger.log("HotkeyHandler.WndProc()");
+
+            if (m.Msg == WM_INPUT)
+            {
+                //Logger.log("inside IF");
+                ProcessRawInput(m.LParam);
+            }
+        }
+
+        private static void ProcessRawInput(IntPtr hRawInput)
+        {
+            uint size = 0;
+            GetRawInputData(hRawInput, RID_INPUT, IntPtr.Zero, ref size, (uint)Marshal.SizeOf(typeof(RAWINPUTHEADER)));
+            IntPtr buffer = Marshal.AllocHGlobal((int)size);
+
+            try
+            {
+                if (GetRawInputData(hRawInput, RID_INPUT, buffer, ref size, (uint)Marshal.SizeOf(typeof(RAWINPUTHEADER))) != size) { return; }
+                RAWINPUT raw = Marshal.PtrToStructure<RAWINPUT>(buffer);
+
+                if (raw.header.dwType == RIM_TYPEKEYBOARD)
+                {
+                    bool keyDown = raw.keyboard.Message == 0x0100 || raw.keyboard.Message == 0x0104;
+                    bool keyUp = raw.keyboard.Message == 0x0101 || raw.keyboard.Message == 0x0105;
+                    Keys key = (Keys)raw.keyboard.VKey;
+
+                    if (keyDown) { OnKeyDown(key); }
+                    if (keyUp) { OnKeyUp(key); }
+                }
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+            }
+        }
+        private static bool altDown;
+        private static bool ctrlDown;
+        private static bool shiftDown;
+
+        private static void OnKeyDown(Keys key)
+        {
+            if (key == Keys.Alt) { altDown = true; }
+            if (key == Keys.ControlKey) { ctrlDown = true; }
+            if (key == Keys.ShiftKey) { shiftDown = true; }
+
+            SeparateModifiers(ConfigHandler.config.hotkeys[0].CombinedModifiers, out bool alt, out bool ctrl, out bool shift);
+            if (altDown == alt && ctrlDown == ctrl && shiftDown == shift && (uint)key == ConfigHandler.config.hotkeys[0].Key)
+            {
+                Logger.log("hotkey for SuspendGameProcesses() pressed");
+                Task.Run(() => ProcessHandler.SuspendGameProcesses());
+            }
+            SeparateModifiers(ConfigHandler.config.hotkeys[1].CombinedModifiers, out alt, out ctrl, out shift);
+            if (altDown == alt && ctrlDown == ctrl && shiftDown == shift && (uint)key == ConfigHandler.config.hotkeys[1].Key)
+            {
+                Logger.log("hotkey for KillGameProcesses() pressed");
+                Task.Run(() => ProcessHandler.KillGameProcesses());
+            }
+            SeparateModifiers(ConfigHandler.config.hotkeys[2].CombinedModifiers, out alt, out ctrl, out shift);
+            if (altDown == alt && ctrlDown == ctrl && shiftDown == shift && (uint)key == ConfigHandler.config.hotkeys[2].Key)
+            {
+                Logger.log("hotkey for DisableAdapter() pressed");
+                string interfaceName = Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString();
+                //string interfaceName = Form1.form.comboBox_Networks.Items[ConfigHandler.config.selectedAdapter].ToString();
+                Task.Run(() => NetworkHandler.DisableAdapter(interfaceName));
+
+            }
+        }
+
+        private static void OnKeyUp(Keys key)
+        {
+            if (key == Keys.Alt) { altDown = false; }
+            if (key == Keys.ControlKey) { ctrlDown = false; }
+            if (key == Keys.ShiftKey) { shiftDown = false; }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// uncombines combinedModifiers
+        /// </summary>
+        /// <param name="combinedModifiers"></param>
+        /// <param name="alt"></param>
+        /// <param name="ctrl"></param>
+        /// <param name="shift"></param>
+        private static void SeparateModifiers(uint combinedModifiers, out bool alt, out bool ctrl, out bool shift)
+        {
+            alt = (combinedModifiers & 0b0001) != 0;
+            ctrl = (combinedModifiers & 0b0010) != 0;
+            shift = (combinedModifiers & 0b0100) != 0;
+        }
+
+
+
+
+
+
+
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
         public static bool HotkeysRegistered = false;
         public struct HotKey
         {
@@ -66,8 +259,7 @@ namespace Quitter_4_Enhanced
             Form1.form.StartTimer();
         }
 
-
-        public static void WndProc(ref Message m)
+        public static void WndProc_OLD(ref Message m)
         {
             // DO NOT OUTPUT ANYTHING HERE, THIS IS CONSTANTLY CALLED!!
             //Logger.log("HotkeyHandler.WndProc()");

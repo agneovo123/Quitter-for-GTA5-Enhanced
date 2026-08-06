@@ -8,6 +8,8 @@ namespace Quitter_4_Enhanced
 {
     public class HotkeyHandler
     {
+        public static bool HotkeysRegistered = false;
+
         private const int WM_INPUT = 0x00FF;
         private const int RID_INPUT = 0x10000003;
         private const uint RIDEV_INPUTSINK = 0x00000100;
@@ -16,6 +18,10 @@ namespace Quitter_4_Enhanced
 
         private const uint RIDI_PREPARSEDDATA = 0x20000005; // ???
         private const uint RIDI_DEVICEINFO = 0x2000000B;    // ???
+
+        private static bool altDown;
+        private static bool ctrlDown;
+        private static bool shiftDown;
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool RegisterRawInputDevices(RAWINPUTDEVICE[] pRawInputDevices, uint uiNumDevices, uint cbSize);
@@ -71,22 +77,29 @@ namespace Quitter_4_Enhanced
 
             if (!RegisterRawInputDevices(devices, (uint)devices.Length, (uint)Marshal.SizeOf(typeof(RAWINPUTDEVICE))))
             {
+                MessageBox.Show("RegisterRawInputDevices failed", "ERROR", MessageBoxButtons.OK);
                 throw new Exception("RegisterRawInputDevices failed");
             }
-        }
 
+            HotkeysRegistered = true;
+        }
         public static void WndProc(ref Message m)
         {
             // DO NOT OUTPUT ANYTHING HERE, THIS IS CONSTANTLY CALLED!!
             //Logger.log("HotkeyHandler.WndProc()");
-
             if (m.Msg == WM_INPUT)
             {
                 //Logger.log("inside IF");
-                ProcessRawInput(m.LParam);
+                if (HotkeysRegistered)
+                {
+                    ProcessRawInput(m.LParam);
+                }
+                else
+                {
+                    Logger.log("HotkeysRegistered == FALSE; --> IGNORING INPUT");
+                }
             }
         }
-
         private static void ProcessRawInput(IntPtr hRawInput)
         {
             uint size = 0;
@@ -113,187 +126,69 @@ namespace Quitter_4_Enhanced
                 Marshal.FreeHGlobal(buffer);
             }
         }
-        private static bool altDown;
-        private static bool ctrlDown;
-        private static bool shiftDown;
-
         private static void OnKeyDown(Keys key)
         {
             if (key == Keys.Alt) { altDown = true; }
             if (key == Keys.ControlKey) { ctrlDown = true; }
             if (key == Keys.ShiftKey) { shiftDown = true; }
 
-            SeparateModifiers(ConfigHandler.config.hotkeys[0].CombinedModifiers, out bool alt, out bool ctrl, out bool shift);
-            if (altDown == alt && ctrlDown == ctrl && shiftDown == shift && (uint)key == ConfigHandler.config.hotkeys[0].Key)
+            int combinedModifiers = 0;
+            if (altDown) { combinedModifiers += 1; }
+            if (ctrlDown) { combinedModifiers += 2; }
+            if (shiftDown) { combinedModifiers += 4; }
+
+            if (combinedModifiers == ConfigHandler.config.hotkeys[0].CombinedModifiers && (uint)key == ConfigHandler.config.hotkeys[0].Key)
             {
                 Logger.log("hotkey for SuspendGameProcesses() pressed");
                 Task.Run(() => ProcessHandler.SuspendGameProcesses());
             }
-            SeparateModifiers(ConfigHandler.config.hotkeys[1].CombinedModifiers, out alt, out ctrl, out shift);
-            if (altDown == alt && ctrlDown == ctrl && shiftDown == shift && (uint)key == ConfigHandler.config.hotkeys[1].Key)
+            if (combinedModifiers == ConfigHandler.config.hotkeys[1].CombinedModifiers && (uint)key == ConfigHandler.config.hotkeys[1].Key)
             {
                 Logger.log("hotkey for KillGameProcesses() pressed");
                 Task.Run(() => ProcessHandler.KillGameProcesses());
             }
-            SeparateModifiers(ConfigHandler.config.hotkeys[2].CombinedModifiers, out alt, out ctrl, out shift);
-            if (altDown == alt && ctrlDown == ctrl && shiftDown == shift && (uint)key == ConfigHandler.config.hotkeys[2].Key)
+            if (combinedModifiers == ConfigHandler.config.hotkeys[2].CombinedModifiers && (uint)key == ConfigHandler.config.hotkeys[2].Key)
             {
                 Logger.log("hotkey for DisableAdapter() pressed");
                 string interfaceName = Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString();
-                //string interfaceName = Form1.form.comboBox_Networks.Items[ConfigHandler.config.selectedAdapter].ToString();
                 Task.Run(() => NetworkHandler.DisableAdapter(interfaceName));
 
             }
         }
-
         private static void OnKeyUp(Keys key)
         {
             if (key == Keys.Alt) { altDown = false; }
             if (key == Keys.ControlKey) { ctrlDown = false; }
             if (key == Keys.ShiftKey) { shiftDown = false; }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         /// <summary>
-        /// uncombines combinedModifiers
+        /// Registers hotkeys
         /// </summary>
-        /// <param name="combinedModifiers"></param>
-        /// <param name="alt"></param>
-        /// <param name="ctrl"></param>
-        /// <param name="shift"></param>
-        private static void SeparateModifiers(uint combinedModifiers, out bool alt, out bool ctrl, out bool shift)
+        public static void RegisterHotkeys()
         {
-            alt = (combinedModifiers & 0b0001) != 0;
-            ctrl = (combinedModifiers & 0b0010) != 0;
-            shift = (combinedModifiers & 0b0100) != 0;
-        }
-
-
-
-
-
-
-
-
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-        public static bool HotkeysRegistered = false;
-        public struct HotKey
-        {
-            public uint key;
-            public bool Ctrl;
-            public bool Alt;
-            public bool Shift;
-            public HotKey(uint key, bool Ctrl, bool Alt, bool Shift)
-            {
-                this.key = key;
-                this.Ctrl = Ctrl;
-                this.Alt = Alt;
-                this.Shift = Shift;
-            }
-        }
-
-        [DllImport("user32.dll")]
-        static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-        [DllImport("user32.dll")]
-        static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-        /// <summary>
-        /// Registers all hotkeys
-        /// </summary>
-        public static void RegisterAll()
-        {
-            Logger.logDEBUG($"RegisterAll() called");
-            Console.WriteLine("RegisterAll()");
+            Logger.logDEBUG($"RegisterHotkeys() called");
             // don't allow multi-registering
             if (!HotkeysRegistered)
             {
-                RegisterHotKey(Form1.form.Handle, 1, ConfigHandler.config.hotkeys[0].CombinedModifiers, ConfigHandler.config.hotkeys[0].Key);
-                RegisterHotKey(Form1.form.Handle, 2, ConfigHandler.config.hotkeys[1].CombinedModifiers, ConfigHandler.config.hotkeys[1].Key);
-                RegisterHotKey(Form1.form.Handle, 3, ConfigHandler.config.hotkeys[2].CombinedModifiers, ConfigHandler.config.hotkeys[2].Key);
-
                 HotkeysRegistered = true;
                 Logger.log("Registered hotkeys");
             }
         }
         /// <summary>
-        /// Unregisters all hotkeys
+        /// Unregisters hotkeys
         /// </summary>
-        public static void UnregisterAll()
+        public static void UnregisterHotkeys()
         {
-            Logger.logDEBUG($"UnregisterAll() called");
+            Logger.logDEBUG($"UnregisterHotkeys() called");
             // don't allow multi-unregistering
             if (HotkeysRegistered)
             {
-                UnregisterHotKey(Form1.form.Handle, 1);
-                UnregisterHotKey(Form1.form.Handle, 2);
-                UnregisterHotKey(Form1.form.Handle, 3);
                 Logger.log("Unregistered hotkeys");
-                Logger.log("Automatically registering 10 seconds after your last activity");
+                Logger.log("Automatically registering 3 seconds after your last activity");
                 HotkeysRegistered = false;
             }
             Form1.form.StartTimer();
         }
-
-        public static void WndProc_OLD(ref Message m)
-        {
-            // DO NOT OUTPUT ANYTHING HERE, THIS IS CONSTANTLY CALLED!!
-            //Logger.log("HotkeyHandler.WndProc()");
-
-            // WM_HOTKEY magic number 0x0312
-            if (m.Msg == 0x0312)
-            {
-                //Logger.log("inside IF");
-                switch (m.WParam.ToInt32())
-                {
-                    case 1:
-                        {
-                            Logger.log("hotkey for SuspendGameProcesses() pressed");
-                            Task.Run(() => ProcessHandler.SuspendGameProcesses());
-                            break;
-                        }
-                    case 2:
-                        {
-                            Logger.log("hotkey for KillGameProcesses() pressed");
-                            Task.Run(() => ProcessHandler.KillGameProcesses());
-                            break;
-                        }
-                    case 3:
-                        {
-                            Logger.log("hotkey for DisableAdapter() pressed");
-                            string interfaceName = Form1.form.comboBox_Networks.Items[Form1.form.comboBox_Networks.SelectedIndex].ToString();
-                            Task.Run(() => NetworkHandler.DisableAdapter(interfaceName));
-                            break;
-                        }
-                }
-            }
-        }
-
-
         /// <summary>
         /// Handles the changing of hotkeys
         /// </summary>
@@ -303,7 +198,7 @@ namespace Quitter_4_Enhanced
         {
             Logger.logDEBUG($"HandleHotkeyTextBox() called");
             // unregister previous hotkeys
-            UnregisterAll();
+            UnregisterHotkeys();
 
             // build the key combination string
             StringBuilder keyCombo = new StringBuilder();

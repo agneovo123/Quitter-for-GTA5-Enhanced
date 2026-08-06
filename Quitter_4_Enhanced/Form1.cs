@@ -89,15 +89,15 @@ namespace Quitter_4_Enhanced
                 // update config
                 ConfigHandler.config.selectedAdapter = comboBox_Networks.SelectedIndex;
                 // unregistering to autosave
-                HotkeyHandler.UnregisterAll();
+                HotkeyHandler.UnregisterHotkeys();
             }
         }
-        // starts/resets the 10 second cooldown of the autosave
+        // starts/resets the 3 second cooldown of the autosave
         internal void StartTimer()
         {
             timer_autosaver.Stop();
             timer_autosaver.Start();
-            timerWaitsFor = 10;
+            timerWaitsFor = 3;
         }
 
         // autosaver timer
@@ -106,11 +106,11 @@ namespace Quitter_4_Enhanced
             timerWaitsFor--;
             if (timerWaitsFor <= 0)
             {
-                HotkeyHandler.RegisterAll();
+                HotkeyHandler.RegisterHotkeys();
                 ConfigHandler.SaveConfig();
 
                 timer_autosaver.Stop();
-                timerWaitsFor = 10;
+                timerWaitsFor = 3;
             }
         }
         // suspend timer
@@ -142,7 +142,7 @@ namespace Quitter_4_Enhanced
                 int suspend = Convert.ToInt32(textBox_SoloTime.Text);
                 ConfigHandler.config.suspendInterval = suspend;
                 timer_suspend.Interval = suspend;
-                HotkeyHandler.UnregisterAll();
+                HotkeyHandler.UnregisterHotkeys();
             }
         }
         private void textBox_NetworkTime_TextChanged(object sender, EventArgs e)
@@ -152,7 +152,7 @@ namespace Quitter_4_Enhanced
                 int dropDelay = Convert.ToInt32(textBox_NetworkTime.Text);
                 ConfigHandler.config.dropDelay = dropDelay;
                 timer_network.Interval = dropDelay * 1000;
-                HotkeyHandler.UnregisterAll();
+                HotkeyHandler.UnregisterHotkeys();
             }
         }
 
@@ -160,7 +160,7 @@ namespace Quitter_4_Enhanced
         {
             if (!IgnoreInputsBecauseLoading)
             {
-                HotkeyHandler.UnregisterAll();
+                HotkeyHandler.UnregisterHotkeys();
                 ConfigHandler.config.selfTerminate = checkBox_selfTerminate.Checked;
             }
         }
